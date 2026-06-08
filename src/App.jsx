@@ -63,6 +63,7 @@ const LogoSVG = ({ size = 48 }) => (
   </svg>
 );
 
+// ── UPGRADE MODAL ──
 function UpgradeModal({ onClose, onUpgrade }) {
   const [plan, setPlan] = useState("year");
   return (
@@ -71,24 +72,42 @@ function UpgradeModal({ onClose, onUpgrade }) {
         <button style={s.modalClose} onClick={onClose}>✕</button>
         <div style={s.modalLogo}><LogoSVG size={72} /></div>
         <h2 style={s.modalTitle}>Je gratis vragen zijn op 🎉</h2>
-        <p style={s.modalSub}>Ga Premium en stel <strong>onbeperkt vragen</strong> — dag en nacht.</p>
+        <p style={s.modalSub}>
+          Ga Premium en stel <strong>onbeperkt vragen</strong> — dag en nacht.
+        </p>
+
+        {/* Plan toggle */}
         <div style={s.planToggle}>
-          <button style={{ ...s.planBtn, ...(plan === "month" ? s.planBtnActive : {}) }} onClick={() => setPlan("month")}>
+          <button
+            style={{ ...s.planBtn, ...(plan === "month" ? s.planBtnActive : {}) }}
+            onClick={() => setPlan("month")}
+          >
             <span style={s.planName}>Per maand</span>
             <span style={s.planPrice}>€3,99</span>
           </button>
-          <button style={{ ...s.planBtn, ...(plan === "year" ? s.planBtnActive : {}) }} onClick={() => setPlan("year")}>
+          <button
+            style={{ ...s.planBtn, ...(plan === "year" ? s.planBtnActive : {}) }}
+            onClick={() => setPlan("year")}
+          >
             <div style={s.planBadge}>Bespaar 37%</div>
             <span style={s.planName}>Per jaar</span>
             <span style={s.planPrice}>€29,99</span>
             <span style={s.planPriceSub}>€2,49/maand</span>
           </button>
         </div>
+
+        {/* Features */}
         <div style={s.featureList}>
-          {["✅ Onbeperkt vragen stellen","✅ Tot 3 kinderprofielen","✅ Gespreksgeschiedenis bewaren","✅ Nieuwe functies als eerste"].map(f => (
+          {[
+            "✅ Onbeperkt vragen stellen",
+            "✅ Tot 3 kinderprofielen",
+            "✅ Gespreksgeschiedenis bewaren",
+            "✅ Nieuwe functies als eerste",
+          ].map(f => (
             <div key={f} style={s.featureItem}>{f}</div>
           ))}
         </div>
+
         <button style={s.upgradeBtn} onClick={() => onUpgrade(plan)}>
           {plan === "year" ? "Start voor €29,99/jaar →" : "Start voor €3,99/maand →"}
         </button>
@@ -98,32 +117,49 @@ function UpgradeModal({ onClose, onUpgrade }) {
   );
 }
 
+// ── PROFILE SELECTOR ──
 function ProfileSelector({ profiles, active, onSelect, onAdd, isPremium }) {
   return (
     <div style={s.profileBar}>
       {profiles.map(p => (
-        <button key={p.id} style={{ ...s.profileBtn, ...(p.id === active ? s.profileBtnActive : {}) }} onClick={() => onSelect(p.id)}>
+        <button
+          key={p.id}
+          style={{ ...s.profileBtn, ...(p.id === active ? s.profileBtnActive : {}) }}
+          onClick={() => onSelect(p.id)}
+        >
           {p.emoji} {p.name}
         </button>
       ))}
-      {isPremium && profiles.length < 3 && <button style={s.profileAddBtn} onClick={onAdd}>+ Kind</button>}
-      {!isPremium && <button style={s.profileLockBtn} onClick={onAdd}>🔒 + Kind</button>}
+      {isPremium && profiles.length < 3 && (
+        <button style={s.profileAddBtn} onClick={onAdd}>+ Kind</button>
+      )}
+      {!isPremium && (
+        <button style={s.profileLockBtn} onClick={onAdd}>🔒 + Kind</button>
+      )}
     </div>
   );
 }
 
+// ── MAIN APP ──
 export default function Papparatzi() {
-  const [screen, setScreen] = useState("onboarding");
+  const [screen, setScreen] = useState("onboarding"); // onboarding | app | upgrade | addProfile
   const [isPremium, setIsPremium] = useState(false);
   const [questionsUsed, setQuestionsUsed] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
-  const [profiles, setProfiles] = useState([{ id: 1, name: "Mijn kind", emoji: "👶", age: "" }]);
+
+  const [profiles, setProfiles] = useState([
+    { id: 1, name: "Mijn kind", emoji: "👶", age: "" }
+  ]);
   const [activeProfile, setActiveProfile] = useState(1);
   const [conversations, setConversations] = useState({ 1: [] });
+
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Onboarding state
   const [childName, setChildName] = useState("");
   const [childAge, setChildAge] = useState("");
+
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -136,40 +172,73 @@ export default function Papparatzi() {
   const sendMessage = async (text) => {
     const userText = text || input.trim();
     if (!userText) return;
-    if (!isPremium && questionsUsed >= FREE_LIMIT) { setShowUpgrade(true); return; }
+
+    if (!isPremium && questionsUsed >= FREE_LIMIT) {
+      setShowUpgrade(true);
+      return;
+    }
+
     const activeProf = profiles.find(p => p.id === activeProfile);
     const contextNote = activeProf?.age ? `[Context: kind is ${activeProf.age} jaar oud] ` : "";
+
     const userMsg = { role: "user", content: userText };
     const newMsgs = [...currentMessages, userMsg];
+
     setConversations(prev => ({ ...prev, [activeProfile]: newMsgs }));
     setInput("");
     setLoading(true);
     if (!isPremium) setQuestionsUsed(q => q + 1);
+
     try {
       const apiMessages = newMsgs.map((m, i) => ({
         role: m.role,
-        content: m.role === "user" && i === newMsgs.length - 1 ? contextNote + m.content : m.content,
+        content: m.role === "user" && i === newMsgs.length - 1
+          ? contextNote + m.content
+          : m.content,
       }));
+
       const response = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 1000, system: SYSTEM_PROMPT, messages: apiMessages }),
+        headers: {
+        "Content-Type": "application/json",
+        "x-api-key": import.meta.env.VITE_ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1000,
+          system: SYSTEM_PROMPT,
+          messages: apiMessages,
+        }),
       });
+
       const data = await response.json();
       const reply = data.content?.[0]?.text || "Sorry, er ging iets mis.";
-      setConversations(prev => ({ ...prev, [activeProfile]: [...newMsgs, { role: "assistant", content: reply }] }));
+      setConversations(prev => ({
+        ...prev,
+        [activeProfile]: [...newMsgs, { role: "assistant", content: reply }]
+      }));
     } catch {
-      setConversations(prev => ({ ...prev, [activeProfile]: [...newMsgs, { role: "assistant", content: "Oeps, er ging iets mis. Probeer het nog eens! 🙏" }] }));
+      setConversations(prev => ({
+        ...prev,
+        [activeProfile]: [...newMsgs, { role: "assistant", content: "Oeps, er ging iets mis. Probeer het nog eens! 🙏" }]
+      }));
     }
     setLoading(false);
   };
 
-  const handleKey = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
+  const handleKey = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  };
 
   const handleUpgrade = (plan) => {
     setIsPremium(true);
     setShowUpgrade(false);
-    alert(`✅ Welkom bij Papparatzi Premium!\n\nIn de echte app ga je hier naar een betaalscherm.`);
+    alert(`✅ Welkom bij Papparatzi Premium! (${plan === "year" ? "€29,99/jaar" : "€3,99/maand"})\n\nIn de echte app ga je hier naar een betaalscherm.`);
   };
 
   const handleAddProfile = () => {
@@ -185,24 +254,39 @@ export default function Papparatzi() {
   };
 
   const finishOnboarding = () => {
-    if (childName) setProfiles([{ id: 1, name: childName, emoji: "👶", age: childAge }]);
+    if (childName) {
+      setProfiles([{ id: 1, name: childName, emoji: "👶", age: childAge }]);
+    }
     setScreen("app");
   };
 
+  // ── ONBOARDING ──
   if (screen === "onboarding") {
     return (
       <div style={s.onboardingWrap}>
         <div style={s.onboardingCard}>
           <LogoSVG size={100} />
           <p style={s.onboardingTagline}>Jouw Opvoedcoach</p>
-          <p style={s.onboardingText}>Stel al je opvoedvragen — dag en nacht, zonder oordeel.</p>
+          <p style={s.onboardingText}>
+            Stel al je opvoedvragen — dag en nacht, zonder oordeel.
+            Van zindelijkheid tot driftbuien.
+          </p>
           <div style={s.onboardingFields}>
             <label style={s.fieldLabel}>Naam van je kind (optioneel)</label>
-            <input style={s.fieldInput} placeholder="bijv. Thiago" value={childName} onChange={e => setChildName(e.target.value)} />
+            <input
+              style={s.fieldInput}
+              placeholder="bijv. Thiago"
+              value={childName}
+              onChange={e => setChildName(e.target.value)}
+            />
             <label style={s.fieldLabel}>Leeftijd</label>
             <div style={s.ageButtons}>
               {["0–1", "1–2", "2–4", "4–6", "6–10", "10+"].map(age => (
-                <button key={age} style={{ ...s.ageBtn, ...(childAge === age ? s.ageBtnActive : {}) }} onClick={() => setChildAge(childAge === age ? "" : age)}>{age}</button>
+                <button
+                  key={age}
+                  style={{ ...s.ageBtn, ...(childAge === age ? s.ageBtnActive : {}) }}
+                  onClick={() => setChildAge(childAge === age ? "" : age)}
+                >{age}</button>
               ))}
             </div>
           </div>
@@ -214,15 +298,20 @@ export default function Papparatzi() {
     );
   }
 
+  // ── MAIN APP ──
   return (
     <div style={s.appWrap}>
       {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} onUpgrade={handleUpgrade} />}
+
+      {/* Header */}
       <div style={s.header}>
         <LogoSVG size={44} />
         <div style={s.headerRight}>
           {!isPremium ? (
             <div style={s.questionCounter}>
-              <div style={s.counterBar}><div style={{ ...s.counterFill, width: `${(remaining / FREE_LIMIT) * 100}%` }} /></div>
+              <div style={s.counterBar}>
+                <div style={{ ...s.counterFill, width: `${(remaining / FREE_LIMIT) * 100}%` }} />
+              </div>
               <span style={s.counterText}>{remaining} vragen over</span>
               <button style={s.premiumBtn} onClick={() => setShowUpgrade(true)}>⭐ Premium</button>
             </div>
@@ -231,7 +320,17 @@ export default function Papparatzi() {
           )}
         </div>
       </div>
-      <ProfileSelector profiles={profiles} active={activeProfile} onSelect={setActiveProfile} onAdd={handleAddProfile} isPremium={isPremium} />
+
+      {/* Profile bar */}
+      <ProfileSelector
+        profiles={profiles}
+        active={activeProfile}
+        onSelect={setActiveProfile}
+        onAdd={handleAddProfile}
+        isPremium={isPremium}
+      />
+
+      {/* Messages */}
       <div style={s.messagesWrap}>
         {currentMessages.length === 0 && (
           <div style={s.emptyState}>
@@ -239,18 +338,24 @@ export default function Papparatzi() {
             <p style={s.emptyTitle}>Waar kan ik je mee helpen?</p>
             <p style={s.emptySubtitle}>Kies een onderwerp of typ je eigen vraag</p>
             <div style={s.suggestionsGrid}>
-              {SUGGESTIONS.map(sg => <button key={sg} style={s.suggestionBtn} onClick={() => sendMessage(sg)}>{sg}</button>)}
+              {SUGGESTIONS.map(sg => (
+                <button key={sg} style={s.suggestionBtn} onClick={() => sendMessage(sg)}>{sg}</button>
+              ))}
             </div>
           </div>
         )}
+
         {currentMessages.map((msg, i) => (
           <div key={i} style={{ ...s.messageBubble, ...(msg.role === "user" ? s.userBubble : s.assistantBubble) }}>
             {msg.role === "assistant" && <div style={s.assistantAvatar}><LogoSVG size={32} /></div>}
             <div style={{ ...s.bubbleText, ...(msg.role === "user" ? s.userBubbleText : s.assistantBubbleText) }}>
-              {msg.content.split("\n").map((line, j) => <span key={j}>{line}{j < msg.content.split("\n").length - 1 && <br />}</span>)}
+              {msg.content.split("\n").map((line, j) => (
+                <span key={j}>{line}{j < msg.content.split("\n").length - 1 && <br />}</span>
+              ))}
             </div>
           </div>
         ))}
+
         {loading && (
           <div style={s.messageBubble}>
             <div style={s.assistantAvatar}><LogoSVG size={32} /></div>
@@ -263,6 +368,8 @@ export default function Papparatzi() {
         )}
         <div ref={messagesEndRef} />
       </div>
+
+      {/* Input */}
       {!isPremium && remaining === 0 ? (
         <div style={s.upgradeBar}>
           <span>Je gratis vragen zijn op 🎉</span>
@@ -270,8 +377,19 @@ export default function Papparatzi() {
         </div>
       ) : (
         <div style={s.inputWrap}>
-          <textarea style={s.input} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey} placeholder="Stel je opvoedvraag hier..." rows={1} />
-          <button style={{ ...s.sendBtn, opacity: input.trim() && !loading ? 1 : 0.4 }} onClick={() => sendMessage()} disabled={!input.trim() || loading}>↑</button>
+          <textarea
+            style={s.input}
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={handleKey}
+            placeholder="Stel je opvoedvraag hier..."
+            rows={1}
+          />
+          <button
+            style={{ ...s.sendBtn, opacity: input.trim() && !loading ? 1 : 0.4 }}
+            onClick={() => sendMessage()}
+            disabled={!input.trim() || loading}
+          >↑</button>
         </div>
       )}
       <div style={s.disclaimer}>Papparatzi geeft geen medisch advies. Raadpleeg bij twijfel een professional.</div>
@@ -282,9 +400,18 @@ export default function Papparatzi() {
 
 const globalStyles = `
   @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
-  @keyframes bounce { 0%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-6px); } }
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-6px); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
   * { box-sizing: border-box; }
   body { margin: 0; background: #FFF8F0; }
   textarea { resize: none; font-family: 'Nunito', sans-serif; }
@@ -294,69 +421,225 @@ const globalStyles = `
 `;
 
 const s = {
-  onboardingWrap: { minHeight: "100vh", background: "linear-gradient(135deg, #FFF8F0 0%, #FFE8D6 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Nunito', sans-serif", padding: "20px" },
-  onboardingCard: { background: "#fff", borderRadius: "28px", padding: "40px 36px", maxWidth: "420px", width: "100%", boxShadow: "0 20px 60px rgba(0,0,0,0.1)", textAlign: "center", animation: "fadeUp 0.5s ease" },
-  onboardingTagline: { color: "#FF6B35", fontWeight: "800", fontSize: "13px", letterSpacing: "0.12em", textTransform: "uppercase", margin: "8px 0 12px" },
+  // Onboarding
+  onboardingWrap: {
+    minHeight: "100vh",
+    background: "linear-gradient(135deg, #FFF8F0 0%, #FFE8D6 100%)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    fontFamily: "'Nunito', sans-serif", padding: "20px",
+  },
+  onboardingCard: {
+    background: "#fff", borderRadius: "28px", padding: "40px 36px",
+    maxWidth: "420px", width: "100%",
+    boxShadow: "0 20px 60px rgba(0,0,0,0.1)", textAlign: "center",
+    animation: "fadeUp 0.5s ease",
+  },
+  onboardingTagline: {
+    color: "#FF6B35", fontWeight: "800", fontSize: "13px",
+    letterSpacing: "0.12em", textTransform: "uppercase", margin: "8px 0 12px",
+  },
   onboardingText: { color: "#666", lineHeight: "1.6", fontSize: "14px", margin: "0 0 28px" },
   onboardingFields: { textAlign: "left", marginBottom: "20px" },
   fieldLabel: { display: "block", fontWeight: "700", fontSize: "13px", color: "#333", marginBottom: "6px", marginTop: "16px" },
-  fieldInput: { width: "100%", padding: "10px 14px", borderRadius: "12px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333" },
+  fieldInput: {
+    width: "100%", padding: "10px 14px", borderRadius: "12px",
+    border: "2px solid #F0E4D4", background: "#FFF8F0",
+    fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333",
+  },
   ageButtons: { display: "flex", gap: "8px", flexWrap: "wrap" },
-  ageBtn: { padding: "7px 14px", borderRadius: "50px", border: "2px solid #E5D5C5", background: "transparent", color: "#666", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px" },
+  ageBtn: {
+    padding: "7px 14px", borderRadius: "50px", border: "2px solid #E5D5C5",
+    background: "transparent", color: "#666", fontFamily: "'Nunito', sans-serif",
+    fontWeight: "700", fontSize: "13px", transition: "all 0.15s",
+  },
   ageBtnActive: { background: "#FF6B35", borderColor: "#FF6B35", color: "#fff" },
-  freeNotice: { background: "#FFF0E8", border: "1.5px solid rgba(255,90,16,0.15)", borderRadius: "10px", padding: "10px 16px", fontSize: "13px", color: "#FF6B35", fontWeight: "700", margin: "16px 0" },
-  startBtn: { width: "100%", padding: "15px", borderRadius: "14px", background: "#FF6B35", color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "16px" },
-  appWrap: { display: "flex", flexDirection: "column", height: "100vh", maxWidth: "680px", margin: "0 auto", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif" },
-  header: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", background: "#fff", borderBottom: "1px solid #F0E4D4", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" },
+  freeNotice: {
+    background: "#FFF0E8", border: "1.5px solid rgba(255,90,16,0.15)",
+    borderRadius: "10px", padding: "10px 16px", fontSize: "13px",
+    color: "#FF6B35", fontWeight: "700", margin: "16px 0",
+  },
+  startBtn: {
+    width: "100%", padding: "15px", borderRadius: "14px",
+    background: "#FF6B35", color: "#fff", border: "none",
+    fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "16px",
+  },
+
+  // App
+  appWrap: {
+    display: "flex", flexDirection: "column", height: "100vh",
+    maxWidth: "680px", margin: "0 auto",
+    background: "#FFF8F0", fontFamily: "'Nunito', sans-serif",
+  },
+  header: {
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+    padding: "10px 16px", background: "#fff",
+    borderBottom: "1px solid #F0E4D4", boxShadow: "0 2px 12px rgba(0,0,0,0.04)",
+  },
   headerRight: { display: "flex", alignItems: "center", gap: "10px" },
   questionCounter: { display: "flex", alignItems: "center", gap: "8px" },
-  counterBar: { width: "80px", height: "6px", background: "#F0E4D4", borderRadius: "10px", overflow: "hidden" },
+  counterBar: {
+    width: "80px", height: "6px", background: "#F0E4D4",
+    borderRadius: "10px", overflow: "hidden",
+  },
   counterFill: { height: "100%", background: "#FF6B35", borderRadius: "10px", transition: "width 0.3s" },
   counterText: { fontSize: "12px", fontWeight: "700", color: "#888" },
-  premiumBtn: { background: "#FF6B35", color: "#fff", border: "none", padding: "6px 14px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "12px" },
-  premiumBadge: { background: "#FFF0E8", color: "#FF6B35", padding: "6px 14px", borderRadius: "50px", fontSize: "12px", fontWeight: "800", border: "1.5px solid rgba(255,90,16,0.2)" },
-  profileBar: { display: "flex", gap: "8px", padding: "10px 16px", background: "#fff", borderBottom: "1px solid #F0E4D4", overflowX: "auto" },
-  profileBtn: { padding: "6px 14px", borderRadius: "50px", border: "2px solid #F0E4D4", background: "transparent", color: "#666", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px", whiteSpace: "nowrap" },
+  premiumBtn: {
+    background: "#FF6B35", color: "#fff", border: "none",
+    padding: "6px 14px", borderRadius: "50px",
+    fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "12px",
+  },
+  premiumBadge: {
+    background: "#FFF0E8", color: "#FF6B35", padding: "6px 14px",
+    borderRadius: "50px", fontSize: "12px", fontWeight: "800",
+    border: "1.5px solid rgba(255,90,16,0.2)",
+  },
+
+  // Profile bar
+  profileBar: {
+    display: "flex", gap: "8px", padding: "10px 16px",
+    background: "#fff", borderBottom: "1px solid #F0E4D4",
+    overflowX: "auto",
+  },
+  profileBtn: {
+    padding: "6px 14px", borderRadius: "50px",
+    border: "2px solid #F0E4D4", background: "transparent",
+    color: "#666", fontFamily: "'Nunito', sans-serif",
+    fontWeight: "700", fontSize: "13px", whiteSpace: "nowrap",
+  },
   profileBtnActive: { background: "#FF6B35", borderColor: "#FF6B35", color: "#fff" },
-  profileAddBtn: { padding: "6px 14px", borderRadius: "50px", border: "2px dashed #FF6B35", background: "transparent", color: "#FF6B35", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px", whiteSpace: "nowrap" },
-  profileLockBtn: { padding: "6px 14px", borderRadius: "50px", border: "2px dashed #DDD", background: "transparent", color: "#AAA", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px", whiteSpace: "nowrap" },
-  messagesWrap: { flex: 1, overflowY: "auto", padding: "20px", display: "flex", flexDirection: "column", gap: "16px" },
-  emptyState: { display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", flex: 1, padding: "20px", textAlign: "center" },
+  profileAddBtn: {
+    padding: "6px 14px", borderRadius: "50px",
+    border: "2px dashed #FF6B35", background: "transparent",
+    color: "#FF6B35", fontFamily: "'Nunito', sans-serif",
+    fontWeight: "700", fontSize: "13px", whiteSpace: "nowrap",
+  },
+  profileLockBtn: {
+    padding: "6px 14px", borderRadius: "50px",
+    border: "2px dashed #DDD", background: "transparent",
+    color: "#AAA", fontFamily: "'Nunito', sans-serif",
+    fontWeight: "700", fontSize: "13px", whiteSpace: "nowrap",
+  },
+
+  // Messages
+  messagesWrap: {
+    flex: 1, overflowY: "auto", padding: "20px",
+    display: "flex", flexDirection: "column", gap: "16px",
+  },
+  emptyState: {
+    display: "flex", flexDirection: "column", alignItems: "center",
+    justifyContent: "center", flex: 1, padding: "20px", textAlign: "center",
+  },
   emptyEmoji: { fontSize: "48px", marginBottom: "12px" },
   emptyTitle: { fontFamily: "'Nunito', sans-serif", fontWeight: "900", fontSize: "22px", color: "#1A1A2E", margin: "0 0 8px" },
   emptySubtitle: { color: "#888", fontSize: "14px", margin: "0 0 24px" },
   suggestionsGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", width: "100%", maxWidth: "480px" },
-  suggestionBtn: { padding: "12px 16px", borderRadius: "14px", border: "2px solid #F0E4D4", background: "#fff", color: "#333", fontFamily: "'Nunito', sans-serif", fontWeight: "600", fontSize: "13px", textAlign: "left", lineHeight: "1.4" },
+  suggestionBtn: {
+    padding: "12px 16px", borderRadius: "14px", border: "2px solid #F0E4D4",
+    background: "#fff", color: "#333", fontFamily: "'Nunito', sans-serif",
+    fontWeight: "600", fontSize: "13px", textAlign: "left", lineHeight: "1.4",
+  },
+
   messageBubble: { display: "flex", alignItems: "flex-start", gap: "10px", animation: "fadeUp 0.3s ease" },
   userBubble: { flexDirection: "row-reverse" },
   assistantBubble: { flexDirection: "row" },
-  assistantAvatar: { flexShrink: 0, borderRadius: "50%", width: "40px", height: "40px", overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.1)" },
+  assistantAvatar: {
+    flexShrink: 0, borderRadius: "50%", width: "40px", height: "40px",
+    overflow: "hidden", boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+  },
   bubbleText: { padding: "14px 18px", borderRadius: "20px", fontSize: "14px", lineHeight: "1.6", maxWidth: "75%" },
   userBubbleText: { background: "#FF6B35", color: "#fff", borderTopRightRadius: "4px", fontWeight: "600" },
   assistantBubbleText: { background: "#fff", color: "#333", borderTopLeftRadius: "4px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" },
-  typingIndicator: { background: "#fff", padding: "16px 20px", borderRadius: "20px", borderTopLeftRadius: "4px", display: "flex", gap: "6px", alignItems: "center", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" },
-  dot: { width: "8px", height: "8px", borderRadius: "50%", background: "#FF6B35", animation: "bounce 1.2s infinite", display: "inline-block" },
-  upgradeBar: { display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px", background: "#FFF0E8", borderTop: "1.5px solid rgba(255,90,16,0.2)", fontSize: "14px", fontWeight: "700", color: "#FF6B35" },
-  upgradeBarBtn: { background: "#FF6B35", color: "#fff", border: "none", padding: "8px 18px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "13px" },
-  inputWrap: { display: "flex", alignItems: "flex-end", gap: "10px", padding: "12px 16px", background: "#fff", borderTop: "1px solid #F0E4D4" },
-  input: { flex: 1, padding: "12px 16px", borderRadius: "16px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontSize: "14px", color: "#333", lineHeight: "1.5", maxHeight: "120px", overflowY: "auto" },
-  sendBtn: { width: "44px", height: "44px", borderRadius: "14px", background: "#FF6B35", color: "#fff", border: "none", fontSize: "20px", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "800", flexShrink: 0, transition: "opacity 0.2s" },
-  disclaimer: { textAlign: "center", fontSize: "11px", color: "#CCC", padding: "6px 20px 10px", background: "#fff" },
-  modalOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 999, animation: "fadeIn 0.2s ease" },
-  modalCard: { background: "#fff", borderRadius: "28px", padding: "36px 32px", maxWidth: "400px", width: "100%", textAlign: "center", boxShadow: "0 32px 80px rgba(0,0,0,0.2)", position: "relative", animation: "fadeUp 0.3s ease" },
-  modalClose: { position: "absolute", top: "16px", right: "16px", background: "#F5F5F5", border: "none", borderRadius: "50%", width: "32px", height: "32px", fontSize: "14px", color: "#888" },
+
+  typingIndicator: {
+    background: "#fff", padding: "16px 20px", borderRadius: "20px",
+    borderTopLeftRadius: "4px", display: "flex", gap: "6px", alignItems: "center",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+  },
+  dot: {
+    width: "8px", height: "8px", borderRadius: "50%",
+    background: "#FF6B35", animation: "bounce 1.2s infinite", display: "inline-block",
+  },
+
+  // Input / upgrade bar
+  upgradeBar: {
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+    padding: "14px 20px", background: "#FFF0E8",
+    borderTop: "1.5px solid rgba(255,90,16,0.2)",
+    fontSize: "14px", fontWeight: "700", color: "#FF6B35",
+  },
+  upgradeBarBtn: {
+    background: "#FF6B35", color: "#fff", border: "none",
+    padding: "8px 18px", borderRadius: "50px",
+    fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "13px",
+  },
+  inputWrap: {
+    display: "flex", alignItems: "flex-end", gap: "10px",
+    padding: "12px 16px", background: "#fff", borderTop: "1px solid #F0E4D4",
+  },
+  input: {
+    flex: 1, padding: "12px 16px", borderRadius: "16px",
+    border: "2px solid #F0E4D4", background: "#FFF8F0",
+    fontSize: "14px", color: "#333", lineHeight: "1.5", maxHeight: "120px", overflowY: "auto",
+  },
+  sendBtn: {
+    width: "44px", height: "44px", borderRadius: "14px",
+    background: "#FF6B35", color: "#fff", border: "none",
+    fontSize: "20px", display: "flex", alignItems: "center",
+    justifyContent: "center", fontWeight: "800", flexShrink: 0, transition: "opacity 0.2s",
+  },
+  disclaimer: {
+    textAlign: "center", fontSize: "11px", color: "#CCC",
+    padding: "6px 20px 10px", background: "#fff",
+  },
+
+  // Upgrade modal
+  modalOverlay: {
+    position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)",
+    display: "flex", alignItems: "center", justifyContent: "center",
+    padding: "20px", zIndex: 999, animation: "fadeIn 0.2s ease",
+  },
+  modalCard: {
+    background: "#fff", borderRadius: "28px", padding: "36px 32px",
+    maxWidth: "400px", width: "100%", textAlign: "center",
+    boxShadow: "0 32px 80px rgba(0,0,0,0.2)", position: "relative",
+    animation: "fadeUp 0.3s ease",
+  },
+  modalClose: {
+    position: "absolute", top: "16px", right: "16px",
+    background: "#F5F5F5", border: "none", borderRadius: "50%",
+    width: "32px", height: "32px", fontSize: "14px", color: "#888",
+  },
   modalLogo: { marginBottom: "16px" },
   modalTitle: { fontFamily: "'Nunito', sans-serif", fontWeight: "900", fontSize: "22px", color: "#1A1A2E", margin: "0 0 8px" },
   modalSub: { color: "#666", fontSize: "14px", lineHeight: "1.6", margin: "0 0 24px" },
+
   planToggle: { display: "flex", gap: "12px", marginBottom: "24px" },
-  planBtn: { flex: 1, padding: "14px 10px", borderRadius: "16px", border: "2px solid #F0E4D4", background: "#FAFAFA", fontFamily: "'Nunito', sans-serif", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", position: "relative" },
+  planBtn: {
+    flex: 1, padding: "14px 10px", borderRadius: "16px",
+    border: "2px solid #F0E4D4", background: "#FAFAFA",
+    fontFamily: "'Nunito', sans-serif", display: "flex",
+    flexDirection: "column", alignItems: "center", gap: "4px",
+    position: "relative", transition: "all 0.15s",
+  },
   planBtnActive: { border: "2px solid #FF6B35", background: "#FFF0E8" },
-  planBadge: { position: "absolute", top: "-10px", background: "#FF6B35", color: "#fff", fontSize: "10px", fontWeight: "800", padding: "2px 8px", borderRadius: "50px" },
+  planBadge: {
+    position: "absolute", top: "-10px",
+    background: "#FF6B35", color: "#fff",
+    fontSize: "10px", fontWeight: "800", padding: "2px 8px",
+    borderRadius: "50px", letterSpacing: "0.05em",
+  },
   planName: { fontSize: "12px", fontWeight: "700", color: "#888" },
   planPrice: { fontSize: "22px", fontWeight: "900", color: "#1A1A2E" },
   planPriceSub: { fontSize: "11px", color: "#AAA", fontWeight: "600" },
+
   featureList: { textAlign: "left", marginBottom: "24px" },
   featureItem: { fontSize: "13px", fontWeight: "700", color: "#444", padding: "5px 0" },
-  upgradeBtn: { width: "100%", padding: "15px", borderRadius: "14px", background: "#FF6B35", color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "15px", marginBottom: "10px" },
+
+  upgradeBtn: {
+    width: "100%", padding: "15px", borderRadius: "14px",
+    background: "#FF6B35", color: "#fff", border: "none",
+    fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "15px",
+    marginBottom: "10px",
+  },
   modalDisclaimer: { fontSize: "11px", color: "#BBB", margin: 0 },
 };
