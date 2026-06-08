@@ -4,7 +4,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { messages, system } = req.body;
+    let body = req.body;
+    if (typeof body === 'string') {
+      body = JSON.parse(body);
+    }
+
+    const { messages, system } = body;
     const key = process.env.ANTHROPIC_API_KEY;
 
     const r = await fetch('https://api.anthropic.com/v1/messages', {
@@ -17,7 +22,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 500,
-        system: system,
+        system: system || 'Je bent een vriendelijke opvoedcoach.',
         messages: messages,
       }),
     });
