@@ -54,11 +54,15 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ system: SYSTEM_PROMPT, messages: newMsgs }),
       });
+      if (!response.ok) {
+        const errText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errText}`);
+      }
       const data = await response.json();
-      const reply = data.content?.[0]?.text || "Sorry, er ging iets mis.";
+      const reply = data.content?.[0]?.text || JSON.stringify(data);
       setMessages([...newMsgs, { role: "assistant", content: reply }]);
-    } catch {
-      setMessages([...newMsgs, { role: "assistant", content: "Oeps, er ging iets mis. Probeer het nog eens! 🙏" }]);
+    } catch (err) {
+      setMessages([...newMsgs, { role: "assistant", content: "Fout: " + err.message }]);
     }
     setLoading(false);
   };
@@ -103,7 +107,7 @@ export default function App() {
             <div style={{ fontSize: "48px" }}>📸</div>
             <h2 style={{ fontWeight: "900", fontSize: "22px", color: "#1A1A2E", margin: "8px 0" }}>Je gratis vragen zijn op!</h2>
             <p style={{ color: "#666", fontSize: "14px", margin: "0 0 24px" }}>Ga Premium voor <strong>onbeperkt vragen</strong></p>
-            <button style={{ width: "100%", padding: "15px", borderRadius: "14px", background: "#FF6B35", color: "#fff", border: "none", fontWeight: "800", fontSize: "15px", cursor: "pointer", marginBottom: "10px" }} onClick={() => { setIsPremium(true); setShowUpgrade(false); alert("Welkom bij Premium! In de echte app ga je naar een betaalscherm."); }}>Start voor €3,99/maand →</button>
+            <button style={{ width: "100%", padding: "15px", borderRadius: "14px", background: "#FF6B35", color: "#fff", border: "none", fontWeight: "800", fontSize: "15px", cursor: "pointer", marginBottom: "10px" }} onClick={() => { setIsPremium(true); setShowUpgrade(false); }}>Start voor €3,99/maand →</button>
             <button style={{ background: "none", border: "none", color: "#aaa", cursor: "pointer", fontSize: "13px" }} onClick={() => setShowUpgrade(false)}>Sluiten</button>
           </div>
         </div>
