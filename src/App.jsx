@@ -2,11 +2,18 @@ import { useState, useRef, useEffect } from "react";
 
 const FREE_LIMIT = 5;
 
-const SYSTEM_PROMPT = `Je bent Papparatzi, een warme en begripvolle opvoedcoach voor ouders. Je geeft praktisch, direct en persoonlijk advies over alles wat met kinderen en opvoeding te maken heeft.
+const SYSTEM_PROMPT = `Je bent Papparatzi, een warm en begripvol opvoedmaatje voor ouders. Je bent geen dokter of expert — je bent die ene vriend of vriendin die altijd het juiste weet te zeggen op het juiste moment.
 
-Je toon is warm, begrijpend, praktisch en zonder oordeel.
+Je schrijfstijl:
+- Warm, persoonlijk en empathisch — begin altijd met een herkenbare opening die laat zien dat je het snapt
+- Gebruik "je" en "jouw kind" — spreek de ouder direct aan
+- Kort en to the point — max 100 woorden
+- Bullet points voor praktische tips — maar nooit meer dan 4
+- Geen streepjes, haakjes of andere rare tekens tussen zinnen
+- Eindig altijd met een bemoedigende zin — ouderschap is zwaar, een klein duwtje helpt
+- Nooit klinisch, nooit afstandelijk, nooit een lap tekst
 
-Je spreekt Nederlands tenzij de gebruiker Engels schrijft. Houd antwoorden beknopt maar compleet — max 200 woorden.`;
+Je spreekt Nederlands tenzij de ouder Engels schrijft.`;
 
 const SUGGESTIONS = [
   "Mijn kind wil niet naar bed 😴",
@@ -42,9 +49,10 @@ export default function App() {
       setShowUpgrade(true);
       return;
     }
-    const userMsg = { role: "user", content: userText };
+    const contextNote = childAge ? `[Het kind is ${childAge} jaar oud.] ` : "";
+    const userMsg = { role: "user", content: contextNote + userText };
     const newMsgs = [...messages, userMsg];
-    setMessages(newMsgs);
+    setMessages([...messages, { role: "user", content: userText }]);
     setInput("");
     setLoading(true);
     if (!isPremium) setQuestionsUsed((q) => q + 1);
@@ -60,9 +68,9 @@ export default function App() {
       }
       const data = await response.json();
       const reply = data.content?.[0]?.text || JSON.stringify(data);
-      setMessages([...newMsgs, { role: "assistant", content: reply }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch (err) {
-      setMessages([...newMsgs, { role: "assistant", content: "Fout: " + err.message }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "Oeps, er ging iets mis. Probeer het nog eens! 🙏" }]);
     }
     setLoading(false);
   };
@@ -147,7 +155,7 @@ export default function App() {
         {messages.map((msg, i) => (
           <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "10px", flexDirection: msg.role === "user" ? "row-reverse" : "row" }}>
             {msg.role === "assistant" && <span style={{ fontSize: "24px", flexShrink: 0 }}>📸</span>}
-            <div style={{ padding: "14px 18px", borderRadius: "20px", fontSize: "14px", lineHeight: "1.6", maxWidth: "75%", background: msg.role === "user" ? "#FF6B35" : "#fff", color: msg.role === "user" ? "#fff" : "#333", fontWeight: msg.role === "user" ? "600" : "normal", borderTopRightRadius: msg.role === "user" ? "4px" : "20px", borderTopLeftRadius: msg.role === "assistant" ? "4px" : "20px", boxShadow: msg.role === "assistant" ? "0 2px 12px rgba(0,0,0,0.06)" : "none" }}>
+            <div style={{ padding: "14px 18px", borderRadius: "20px", fontSize: "14px", lineHeight: "1.6", maxWidth: "75%", background: msg.role === "user" ? "#FF6B35" : "#fff", color: msg.role === "user" ? "#fff" : "#333", fontWeight: msg.role === "user" ? "600" : "normal", borderTopRightRadius: msg.role === "user" ? "4px" : "20px", borderTopLeftRadius: msg.role === "assistant" ? "4px" : "20px", boxShadow: msg.role === "assistant" ? "0 2px 12px rgba(0,0,0,0.06)" : "none", whiteSpace: "pre-wrap" }}>
               {msg.content}
             </div>
           </div>
@@ -155,7 +163,9 @@ export default function App() {
         {loading && (
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <span style={{ fontSize: "24px" }}>📸</span>
-            <div style={{ background: "#fff", padding: "16px 20px", borderRadius: "20px", borderTopLeftRadius: "4px" }}>...</div>
+            <div style={{ background: "#fff", padding: "16px 20px", borderRadius: "20px", borderTopLeftRadius: "4px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
+              <span style={{ color: "#FF6B35", fontSize: "20px" }}>•••</span>
+            </div>
           </div>
         )}
         <div ref={messagesEndRef} />
