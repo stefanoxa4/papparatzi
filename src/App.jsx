@@ -578,11 +578,50 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
+  const saveConversation = async (msgs, uid) => {
+    if (!uid || msgs.length === 0) return;
+    try {
+      await supabase.from("conversations").upsert({
+        user_id: uid,
+        messages: JSON.stringify(msgs),
+        child_name: childName,
+        child_age: childAge,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id" });
+    } catch (e) { console.error("Save error:", e); }
+  };
+
+  const loadConversation = async (uid) => {
+    if (!uid) return;
+    try {
+      const { data } = await supabase
+        .from("conversations")
+        .select("*")
+        .eq("user_id", uid)
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .single();
+      if (data?.messages) {
+        setMessages(JSON.parse(data.messages));
+        if (data.child_name) setChildName(data.child_name);
+        if (data.child_age) setChildAge(data.child_age);
+      }
+    } catch (e) { console.error("Load error:", e); }
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("premium") === "true") { setIsPremium(true); window.history.replaceState({}, "", "/"); }
-    supabase.auth.getSession().then(({ data: { session } }) => { if (session?.user) setUser(session.user); });
-    supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user || null); });
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(session.user);
+        loadConversation(session.user.id);
+      }
+    });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user || null);
+      if (session?.user) loadConversation(session.user.id);
+    });
   }, []);
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
@@ -602,7 +641,10 @@ export default function App() {
       const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: buildSystemPrompt(childName, childAge, lang), messages: newMsgs }) });
       if (!response.ok) throw new Error();
       const data = await response.json();
-      setMessages(prev => [...prev, { role: "assistant", content: data.content?.[0]?.text || "..." }]);
+      const reply = data.content?.[0]?.text || "...";
+      const updatedMsgs = [...newMsgs, { role: "assistant", content: reply }];
+      setMessages(updatedMsgs);
+      if (user) saveConversation(updatedMsgs, user.id);
     } catch { setMessages(prev => [...prev, { role: "assistant", content: "Oeps! 🙏" }]); }
     setLoading(false);
   };
