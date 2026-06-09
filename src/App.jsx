@@ -25,9 +25,9 @@ const getBrowserLang = () => {
 // ── TRANSLATIONS ───────────────────────────────────────────────────────────
 const T = {
   nl: {
-    tagline: "Jouw Opvoedmaatje",
+    tagline: "Jouw Digitale Opvoedmaatje",
     onboarding_title: "Papparatzi",
-    onboarding_sub: "Jouw Opvoedmaatje",
+    onboarding_sub: "Jouw Digitale Opvoedmaatje",
     onboarding_text: "Stel al je opvoedvragen — dag en nacht, zonder oordeel. Jij doet het goed. 💛",
     child_name_label: "Naam van je kind (optioneel)",
     child_name_placeholder: "bijv. Thiago",
@@ -94,9 +94,9 @@ const T = {
     days_short: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za"],
   },
   en: {
-    tagline: "Your Parenting Buddy",
+    tagline: "Your Digital Parenting Buddy",
     onboarding_title: "Papparatzi",
-    onboarding_sub: "Your Parenting Buddy",
+    onboarding_sub: "Your Digital Parenting Buddy",
     onboarding_text: "Ask all your parenting questions — day or night, without judgment. You're doing great. 💛",
     child_name_label: "Your child's name (optional)",
     child_name_placeholder: "e.g. Emma",
@@ -313,23 +313,41 @@ Je spreekt Nederlands.`;
 
 // ── SVG COMPONENTS ─────────────────────────────────────────────────────────
 const LogoSVG = ({ size = 40 }) => (
-  <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="50" fill="#FF6B35"/>
-    <ellipse cx="50" cy="42" rx="22" ry="24" fill="#FFE0C8"/>
-    <ellipse cx="50" cy="22" rx="18" ry="8" fill="#FF8C5A"/>
-    <ellipse cx="34" cy="28" rx="8" ry="6" fill="#FF8C5A"/>
-    <ellipse cx="66" cy="28" rx="8" ry="6" fill="#FF8C5A"/>
-    <circle cx="42" cy="40" r="4" fill="#1A1A2E"/>
-    <circle cx="58" cy="40" r="4" fill="#1A1A2E"/>
-    <circle cx="43.5" cy="38.5" r="1.5" fill="#fff"/>
-    <circle cx="59.5" cy="38.5" r="1.5" fill="#fff"/>
-    <ellipse cx="50" cy="47" rx="2" ry="1.5" fill="#FFB89A"/>
-    <path d="M43 53 Q50 59 57 53" stroke="#FF6B35" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
-    <ellipse cx="36" cy="50" rx="5" ry="3" fill="#FFB89A" opacity="0.5"/>
-    <ellipse cx="64" cy="50" rx="5" ry="3" fill="#FFB89A" opacity="0.5"/>
-    <ellipse cx="50" cy="78" rx="18" ry="14" fill="#FF6B35"/>
-    <ellipse cx="50" cy="72" rx="14" ry="10" fill="#FFE0C8"/>
-    <path d="M50 76 C50 76 45 71 45 68 C45 66 47 65 50 68 C53 65 55 66 55 68 C55 71 50 76 50 76Z" fill="#FF8C5A"/>
+  <svg width={size} height={size} viewBox="0 0 190 190" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bgG" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor="#FF7A45"/>
+        <stop offset="100%" stopColor="#FF4500"/>
+      </linearGradient>
+    </defs>
+    <circle cx="95" cy="95" r="95" fill="url(#bgG)"/>
+    <circle cx="95" cy="95" r="88" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1.5"/>
+    {/* Ouder hoofd */}
+    <circle cx="68" cy="42" r="16" fill="white"/>
+    {/* Ouder lichaam */}
+    <line x1="68" y1="58" x2="68" y2="115" stroke="white" strokeWidth="13" strokeLinecap="round"/>
+    {/* Ouder benen */}
+    <line x1="68" y1="115" x2="52" y2="158" stroke="white" strokeWidth="11" strokeLinecap="round"/>
+    <line x1="68" y1="115" x2="84" y2="158" stroke="white" strokeWidth="11" strokeLinecap="round"/>
+    {/* Ouder arm naar kind */}
+    <line x1="68" y1="78" x2="108" y2="95" stroke="white" strokeWidth="11" strokeLinecap="round"/>
+    {/* Ouder arm andere kant */}
+    <line x1="68" y1="78" x2="42" y2="90" stroke="white" strokeWidth="11" strokeLinecap="round"/>
+    {/* Kind hoofd */}
+    <circle cx="128" cy="60" r="11" fill="white" opacity="0.9"/>
+    {/* Kind lichaam */}
+    <line x1="128" y1="71" x2="128" y2="108" stroke="white" strokeWidth="9" strokeLinecap="round" opacity="0.9"/>
+    {/* Kind benen */}
+    <line x1="128" y1="108" x2="116" y2="145" stroke="white" strokeWidth="8" strokeLinecap="round" opacity="0.9"/>
+    <line x1="128" y1="108" x2="140" y2="145" stroke="white" strokeWidth="8" strokeLinecap="round" opacity="0.9"/>
+    {/* Kind arm naar ouder */}
+    <line x1="128" y1="82" x2="108" y2="95" stroke="white" strokeWidth="8" strokeLinecap="round" opacity="0.9"/>
+    {/* Kind arm omhoog */}
+    <line x1="128" y1="82" x2="148" y2="68" stroke="white" strokeWidth="8" strokeLinecap="round" opacity="0.9"/>
+    {/* Hand in hand punt */}
+    <circle cx="108" cy="95" r="6" fill="white"/>
+    {/* Hartje boven kind */}
+    <path d="M128 44 C128 44 123 38 123 35 C123 32 125 31 128 35 C131 31 133 32 133 35 C133 38 128 44 128 44Z" fill="white" opacity="0.75"/>
   </svg>
 );
 
