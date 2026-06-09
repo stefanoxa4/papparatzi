@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from "react";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-// ── SUPABASE ───────────────────────────────────────────────────────────────
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
-// ── FONTS ──────────────────────────────────────────────────────────────────
+const STRIPE_PUBLIC_KEY = "pk_test_51TgXrWBlRJhZgwkVP2jNOsXp8hAv0LuQEHmcZQstURQ8RARXaFS1CDL7xq4VgS5IBha00DE03CsAPmqDs1QTia9J00v0gHE5BK";
+
 const fontLink = document.createElement("link");
 fontLink.rel = "stylesheet";
 fontLink.href = "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap";
@@ -15,7 +15,6 @@ document.head.appendChild(fontLink);
 
 const FREE_LIMIT = 5;
 
-// ── SYSTEM PROMPT ──────────────────────────────────────────────────────────
 const buildSystemPrompt = (childName, childAge) => `Je bent Papparatzi, een warm en begripvol opvoedmaatje voor ouders. Je bent geen dokter of expert — je bent die ene vriend of vriendin die altijd het juiste weet te zeggen op het juiste moment.
 ${childName ? `Het kind heet ${childName}.` : ""}${childAge ? ` Het kind is ${childAge} jaar oud.` : ""}
 
@@ -30,7 +29,6 @@ Je schrijfstijl:
 
 Je spreekt Nederlands tenzij de ouder Engels schrijft.`;
 
-// ── LEEFTIJD TIPS ──────────────────────────────────────────────────────────
 const AGE_TIPS = {
   "0–1": [
     { emoji: "😴", tip: "Slaapritme opbouwen", vraag: "Hoe bouw ik een slaapritme op?" },
@@ -81,7 +79,6 @@ const WIST_JE_DAT = [
   "Baby's kunnen al vanaf 6 weken lachen — maar dan sociaal bewust! 😊",
 ];
 
-// ── LOGO ───────────────────────────────────────────────────────────────────
 const LogoSVG = ({ size = 40 }) => (
   <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="50" cy="50" r="50" fill="#FF6B35"/>
@@ -131,7 +128,6 @@ const BabyIllustration = ({ size = 80 }) => (
   </svg>
 );
 
-// ── LOGIN SCHERM ───────────────────────────────────────────────────────────
 const LoginScreen = ({ onClose, onSuccess }) => {
   const [mode, setMode] = useState("login");
   const [email, setEmail] = useState("");
@@ -170,17 +166,13 @@ const LoginScreen = ({ onClose, onSuccess }) => {
         <p style={{ color: "#888", fontSize: "13px", margin: "0 0 24px", lineHeight: 1.5 }}>
           {mode === "login" ? "Log in om je gesprekken te bewaren" : "Maak een account aan en sla je gesprekken op"}
         </p>
-
         {error && <div style={{ background: "#FFF0F0", border: "1.5px solid #FFD0D0", borderRadius: "10px", padding: "10px", fontSize: "13px", color: "#CC0000", marginBottom: "16px" }}>{error}</div>}
         {message && <div style={{ background: "#F0FFF4", border: "1.5px solid #C0E8C0", borderRadius: "10px", padding: "10px", fontSize: "13px", color: "#007700", marginBottom: "16px" }}>{message}</div>}
-
         <input style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333", boxSizing: "border-box", marginBottom: "12px" }} type="email" placeholder="E-mailadres" value={email} onChange={e => setEmail(e.target.value)} />
         <input style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333", boxSizing: "border-box", marginBottom: "16px" }} type="password" placeholder="Wachtwoord" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()} />
-
         <button style={{ width: "100%", padding: "14px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Fredoka', sans-serif", fontWeight: "600", fontSize: "18px", cursor: "pointer", marginBottom: "12px", opacity: loading ? 0.6 : 1 }} onClick={handleSubmit} disabled={loading}>
           {loading ? "Even geduld..." : mode === "login" ? "Inloggen →" : "Account aanmaken →"}
         </button>
-
         <button style={{ background: "none", border: "none", color: "#FF6B35", cursor: "pointer", fontSize: "13px", fontWeight: "700", marginBottom: "8px", fontFamily: "'Nunito', sans-serif" }} onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); setMessage(""); }}>
           {mode === "login" ? "Nog geen account? Registreer je gratis" : "Al een account? Log in"}
         </button>
@@ -191,7 +183,61 @@ const LoginScreen = ({ onClose, onSuccess }) => {
   );
 };
 
-// ── POLL ───────────────────────────────────────────────────────────────────
+const UpgradeModal = ({ onClose, isPremium }) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleCheckout = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch("/api/checkout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Er ging iets mis. Probeer het nog eens!");
+      }
+    } catch {
+      alert("Er ging iets mis. Probeer het nog eens!");
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 999 }}>
+      <div style={{ background: "#fff", borderRadius: "28px", padding: "36px 28px", maxWidth: "380px", width: "100%", textAlign: "center", fontFamily: "'Nunito', sans-serif" }}>
+        <LogoSVG size={64} />
+        <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "24px", color: "#1A1A2E", margin: "12px 0 8px" }}>Papparatzi Premium 🌟</h2>
+        <p style={{ color: "#666", fontSize: "14px", margin: "0 0 20px", lineHeight: 1.6 }}>Alles wat jij als ouder nodig hebt, op één plek.</p>
+
+        <div style={{ background: "#FFF8F0", borderRadius: "16px", padding: "16px", marginBottom: "20px", textAlign: "left" }}>
+          {[
+            "✅ Onbeperkt vragen stellen",
+            "✅ Gesprekken bewaren",
+            "✅ Zindelijkheidstracker",
+            "✅ Interactieve tandjeskaart",
+            "✅ Nieuwe functies als eerste",
+          ].map((f, i) => (
+            <div key={i} style={{ fontSize: "14px", color: "#444", padding: "5px 0", fontWeight: "600" }}>{f}</div>
+          ))}
+        </div>
+
+        <div style={{ background: "linear-gradient(135deg, #FF6B35, #FF5A10)", borderRadius: "16px", padding: "16px", marginBottom: "20px", textAlign: "center" }}>
+          <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "32px", color: "#fff", fontWeight: "700" }}>€3,99</div>
+          <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "13px" }}>per maand · opzeggen wanneer je wil</div>
+        </div>
+
+        <button style={{ width: "100%", padding: "15px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Fredoka', sans-serif", fontWeight: "600", fontSize: "18px", cursor: "pointer", marginBottom: "10px", opacity: loading ? 0.6 : 1 }} onClick={handleCheckout} disabled={loading}>
+          {loading ? "Doorsturen naar betaling..." : "Start Premium →"}
+        </button>
+        <button style={{ background: "none", border: "none", color: "#aaa", cursor: "pointer", fontSize: "13px", fontFamily: "'Nunito', sans-serif" }} onClick={onClose}>Sluiten</button>
+      </div>
+    </div>
+  );
+};
+
 const PollWidget = ({ childAge }) => {
   const wistJeDatIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24 * 7)) % WIST_JE_DAT.length;
   const [voted, setVoted] = useState(null);
@@ -224,7 +270,6 @@ const PollWidget = ({ childAge }) => {
   );
 };
 
-// ── ZINDELIJKHEID TRACKER ──────────────────────────────────────────────────
 const ZindelijkheidTracker = () => {
   const today = new Date();
   const [days, setDays] = useState(() => {
@@ -261,9 +306,7 @@ const ZindelijkheidTracker = () => {
               <button onClick={() => toggle(key, "droog")} style={{ width: "100%", aspectRatio: "1", borderRadius: "10px", border: "2px solid", borderColor: days[key] === "droog" ? "#4CAF50" : "#F0E4D4", background: days[key] === "droog" ? "#E8F5E9" : "#fff", fontSize: "16px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 {days[key] === "droog" ? "✅" : days[key] === "ongelukje" ? "💧" : "○"}
               </button>
-              <button onClick={() => toggle(key, "ongelukje")} style={{ width: "100%", marginTop: "4px", padding: "3px", borderRadius: "8px", border: "2px solid", borderColor: days[key] === "ongelukje" ? "#2196F3" : "#F0E4D4", background: days[key] === "ongelukje" ? "#E3F2FD" : "#fff", fontSize: "10px", cursor: "pointer", color: "#888" }}>
-                💧
-              </button>
+              <button onClick={() => toggle(key, "ongelukje")} style={{ width: "100%", marginTop: "4px", padding: "3px", borderRadius: "8px", border: "2px solid", borderColor: days[key] === "ongelukje" ? "#2196F3" : "#F0E4D4", background: days[key] === "ongelukje" ? "#E3F2FD" : "#fff", fontSize: "10px", cursor: "pointer", color: "#888" }}>💧</button>
             </div>
           );
         })}
@@ -275,28 +318,22 @@ const ZindelijkheidTracker = () => {
   );
 };
 
-// ── TANDJES KAART ──────────────────────────────────────────────────────────
 const TandjiesKaart = () => {
   const [tandjes, setTandjes] = useState({});
   const toggle = (id) => setTandjes(prev => ({ ...prev, [id]: !prev[id] }));
   const totaal = Object.values(tandjes).filter(Boolean).length;
-
   const bovenTandjes = ["b1","b2","b3","b4","b5","b6","b7","b8","b9","b10"].map((id, i) => ({ id, naam: i < 4 ? "Snijtand" : i < 6 ? "Hoektand" : "Kies" }));
   const onderTandjes = ["o1","o2","o3","o4","o5","o6","o7","o8","o9","o10"].map((id, i) => ({ id, naam: i < 4 ? "Snijtand" : i < 6 ? "Hoektand" : "Kies" }));
-
   const TandRij = ({ items, label }) => (
     <div style={{ marginBottom: "16px" }}>
       <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "8px", textAlign: "center" }}>{label}</div>
       <div style={{ display: "flex", gap: "6px", justifyContent: "center", flexWrap: "wrap" }}>
         {items.map(t => (
-          <button key={t.id} onClick={() => toggle(t.id)} title={t.naam} style={{ width: "32px", height: "38px", borderRadius: "6px 6px 10px 10px", border: "2px solid", borderColor: tandjes[t.id] ? "#FF6B35" : "#E5D5C5", background: tandjes[t.id] ? "#FF6B35" : "#fff", cursor: "pointer", fontSize: "14px" }}>
-            🦷
-          </button>
+          <button key={t.id} onClick={() => toggle(t.id)} title={t.naam} style={{ width: "32px", height: "38px", borderRadius: "6px 6px 10px 10px", border: "2px solid", borderColor: tandjes[t.id] ? "#FF6B35" : "#E5D5C5", background: tandjes[t.id] ? "#FF6B35" : "#fff", cursor: "pointer", fontSize: "14px" }}>🦷</button>
         ))}
       </div>
     </div>
   );
-
   return (
     <div style={{ flex: 1, overflowY: "auto", padding: "20px", fontFamily: "'Nunito', sans-serif" }}>
       <div style={{ background: "#fff", borderRadius: "20px", padding: "20px", marginBottom: "16px", textAlign: "center" }}>
@@ -317,7 +354,6 @@ const TandjiesKaart = () => {
   );
 };
 
-// ── MAIN APP ───────────────────────────────────────────────────────────────
 export default function App() {
   const [screen, setScreen] = useState("onboarding");
   const [activeTab, setActiveTab] = useState("chat");
@@ -334,6 +370,13 @@ export default function App() {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
+    // Check for premium=true in URL after Stripe redirect
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("premium") === "true") {
+      setIsPremium(true);
+      window.history.replaceState({}, "", "/");
+    }
+
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session?.user) setUser(session.user);
     });
@@ -384,7 +427,6 @@ export default function App() {
     setUser(null);
   };
 
-  // ── ONBOARDING ──
   if (screen === "onboarding") {
     return (
       <div style={{ minHeight: "100vh", background: "linear-gradient(160deg, #FFF8F0 0%, #FFE8D6 100%)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Nunito', sans-serif", padding: "20px" }}>
@@ -405,34 +447,18 @@ export default function App() {
           </div>
           <div style={{ background: "#FFF0E8", border: "1.5px solid rgba(255,107,53,0.2)", borderRadius: "12px", padding: "10px 16px", fontSize: "13px", color: "#FF6B35", fontWeight: "700", margin: "16px 0" }}>🎉 5 vragen gratis — geen account nodig</div>
           <button style={{ width: "100%", padding: "16px", borderRadius: "16px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Fredoka', sans-serif", fontWeight: "600", fontSize: "18px", cursor: "pointer", marginBottom: "12px" }} onClick={() => setScreen("app")}>Begin nu →</button>
-          <button style={{ background: "none", border: "none", color: "#FF6B35", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px", cursor: "pointer" }} onClick={() => setShowLogin(true)}>
-            Al een account? Log in →
-          </button>
+          <button style={{ background: "none", border: "none", color: "#FF6B35", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px", cursor: "pointer" }} onClick={() => setShowLogin(true)}>Al een account? Log in →</button>
         </div>
         {showLogin && <LoginScreen onClose={() => setShowLogin(false)} onSuccess={() => { setShowLogin(false); setScreen("app"); }} />}
       </div>
     );
   }
 
-  // ── MAIN SCREEN ──
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh", maxWidth: "680px", margin: "0 auto", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif" }}>
-
-      {showUpgrade && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 999 }}>
-          <div style={{ background: "#fff", borderRadius: "28px", padding: "36px 28px", maxWidth: "380px", width: "100%", textAlign: "center" }}>
-            <LogoSVG size={64} />
-            <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "24px", color: "#1A1A2E", margin: "12px 0 8px" }}>Je gratis vragen zijn op!</h2>
-            <p style={{ color: "#666", fontSize: "14px", margin: "0 0 24px", lineHeight: 1.6 }}>Ga Premium voor <strong>onbeperkt vragen</strong>, opgeslagen gesprekken, zindelijkheidstracker en tandjeskaart.</p>
-            <button style={{ width: "100%", padding: "15px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Fredoka', sans-serif", fontWeight: "600", fontSize: "18px", cursor: "pointer", marginBottom: "10px" }} onClick={() => { setIsPremium(true); setShowUpgrade(false); }}>Start voor €3,99/maand →</button>
-            <button style={{ background: "none", border: "none", color: "#aaa", cursor: "pointer", fontSize: "13px" }} onClick={() => setShowUpgrade(false)}>Sluiten</button>
-          </div>
-        </div>
-      )}
-
+      {showUpgrade && <UpgradeModal onClose={() => setShowUpgrade(false)} isPremium={isPremium} />}
       {showLogin && <LoginScreen onClose={() => setShowLogin(false)} onSuccess={() => setShowLogin(false)} />}
 
-      {/* Header */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", background: "#fff", borderBottom: "1px solid #F0E4D4", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
           {(activeTab !== "chat" || messages.length > 0) && (
@@ -446,13 +472,9 @@ export default function App() {
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {user ? (
-            <button onClick={handleLogout} style={{ background: "#FFF0E8", color: "#FF6B35", border: "1.5px solid rgba(255,107,53,0.2)", padding: "5px 12px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "11px", cursor: "pointer" }}>
-              👤 Uitloggen
-            </button>
+            <button onClick={handleLogout} style={{ background: "#FFF0E8", color: "#FF6B35", border: "1.5px solid rgba(255,107,53,0.2)", padding: "5px 12px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "11px", cursor: "pointer" }}>👤 Uitloggen</button>
           ) : (
-            <button onClick={() => setShowLogin(true)} style={{ background: "#FFF0E8", color: "#FF6B35", border: "1.5px solid rgba(255,107,53,0.2)", padding: "5px 12px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "11px", cursor: "pointer" }}>
-              👤 Inloggen
-            </button>
+            <button onClick={() => setShowLogin(true)} style={{ background: "#FFF0E8", color: "#FF6B35", border: "1.5px solid rgba(255,107,53,0.2)", padding: "5px 12px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "11px", cursor: "pointer" }}>👤 Inloggen</button>
           )}
           {!isPremium ? (
             <button style={{ background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", padding: "6px 12px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "11px", cursor: "pointer" }} onClick={() => setShowUpgrade(true)}>⭐ Premium</button>
@@ -462,7 +484,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div style={{ display: "flex", background: "#fff", borderBottom: "1px solid #F0E4D4", padding: "0 16px", overflowX: "auto" }}>
         {[
           { id: "chat", label: "💬 Chat" },
@@ -477,7 +498,6 @@ export default function App() {
         ))}
       </div>
 
-      {/* CHAT TAB */}
       {activeTab === "chat" && (
         <>
           <div style={{ flex: 1, overflowY: "auto", padding: "20px", display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -541,7 +561,6 @@ export default function App() {
         </>
       )}
 
-      {/* TIPS TAB */}
       {activeTab === "tips" && (
         <div style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
           <h2 style={{ fontFamily: "'Fredoka', sans-serif", color: "#FF5A10", fontSize: "22px", margin: "0 0 16px" }}>Tips voor {childAge ? `${childAge} jaar` : "jouw kind"} 💡</h2>
