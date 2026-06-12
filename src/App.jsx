@@ -535,18 +535,21 @@ const TandjesKaart = ({ t }) => {
   const toggle = (id) => setTandjes(prev => ({ ...prev, [id]: !prev[id] }));
   const totaal = Object.values(tandjes).filter(Boolean).length;
 
-  const Tand = ({ id, label }) => (
-    <button onClick={() => toggle(id)} title={label}
-      style={{ width: "36px", height: "36px", borderRadius: "6px 6px 12px 12px", border: "2px solid", borderColor: tandjes[id] ? "#FF5A10" : "#E0D0C0", background: tandjes[id] ? "linear-gradient(180deg, #FF7A45, #FF4500)" : "#FFF8F0", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", color: tandjes[id] ? "#fff" : "#ddd", fontWeight: "bold", flexShrink: 0 }}>
-      {tandjes[id] ? "✓" : ""}
-    </button>
-  );
+  const bovenTandjes = ["b1","b2","b3","b4","b5","b6","b7","b8","b9","b10"].map((id, i) => ({ id, naam: i < 4 ? "Snijtand" : i < 6 ? "Hoektand" : "Kies" }));
+  const onderTandjes = ["o1","o2","o3","o4","o5","o6","o7","o8","o9","o10"].map((id, i) => ({ id, naam: i < 4 ? "Snijtand" : i < 6 ? "Hoektand" : "Kies" }));
 
-  const TandOnder = ({ id, label }) => (
-    <button onClick={() => toggle(id)} title={label}
-      style={{ width: "36px", height: "36px", borderRadius: "12px 12px 6px 6px", border: "2px solid", borderColor: tandjes[id] ? "#FF5A10" : "#E0D0C0", background: tandjes[id] ? "linear-gradient(0deg, #FF7A45, #FF4500)" : "#FFF8F0", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", color: tandjes[id] ? "#fff" : "#ddd", fontWeight: "bold", flexShrink: 0 }}>
-      {tandjes[id] ? "✓" : ""}
-    </button>
+  const TandRij = ({ items, label }) => (
+    <div style={{ marginBottom: "16px" }}>
+      <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "8px", textAlign: "center", fontWeight: "700", letterSpacing: "0.08em", textTransform: "uppercase" }}>{label}</div>
+      <div style={{ display: "flex", gap: "5px", justifyContent: "center", flexWrap: "wrap" }}>
+        {items.map(tooth => (
+          <button key={tooth.id} onClick={() => toggle(tooth.id)} title={tooth.naam}
+            style={{ width: "34px", height: "40px", borderRadius: "6px 6px 12px 12px", border: "2px solid", borderColor: tandjes[tooth.id] ? "#FF5A10" : "#E0D0C0", background: tandjes[tooth.id] ? "linear-gradient(180deg, #FF7A45, #FF4500)" : "#FFF8F0", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "13px", color: "#fff", fontWeight: "bold" }}>
+            {tandjes[tooth.id] ? "✓" : ""}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 
   return (
@@ -557,47 +560,18 @@ const TandjesKaart = ({ t }) => {
       </div>
 
       <div style={{ background: "linear-gradient(135deg, #FF6B35, #FF8C5A)", borderRadius: "16px", padding: "16px", marginBottom: "16px", textAlign: "center" }}>
-        <div style={{ fontSize: "28px", fontFamily: "'Fredoka', sans-serif", color: "#fff", fontWeight: "700" }}>{totaal} / 16</div>
+        <div style={{ fontSize: "28px", fontFamily: "'Fredoka', sans-serif", color: "#fff", fontWeight: "700" }}>{totaal} / 20</div>
         <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "13px" }}>{t.teeth_count}</div>
       </div>
 
       <div style={{ background: "#fff", borderRadius: "16px", padding: "20px" }}>
-        {/* Bovenkaak label */}
-        <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "10px", textAlign: "center", fontWeight: "700", letterSpacing: "0.08em", textTransform: "uppercase" }}>{t.teeth_upper}</div>
-
-        {/* Bovenkaak — curve gesimuleerd met margin */}
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-end", gap: "3px", marginBottom: "4px" }}>
-          <div style={{ marginBottom: "8px" }}><Tand id="b1" label="Kies" /></div>
-          <div style={{ marginBottom: "14px" }}><Tand id="b2" label="Hoektand" /></div>
-          <div style={{ marginBottom: "18px" }}><Tand id="b3" label="Snijtand" /></div>
-          <div style={{ marginBottom: "20px" }}><Tand id="b4" label="Snijtand" /></div>
-          <div style={{ marginBottom: "20px" }}><Tand id="b5" label="Snijtand" /></div>
-          <div style={{ marginBottom: "18px" }}><Tand id="b6" label="Snijtand" /></div>
-          <div style={{ marginBottom: "14px" }}><Tand id="b7" label="Hoektand" /></div>
-          <div style={{ marginBottom: "8px" }}><Tand id="b8" label="Kies" /></div>
-        </div>
-
-        {/* Middenlijn */}
-        <div style={{ height: "2px", background: "#F0E4D4", borderRadius: "2px", margin: "6px 0" }} />
-
-        {/* Onderkaak — gespiegeld */}
-        <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", gap: "3px", marginTop: "4px" }}>
-          <div style={{ marginTop: "8px" }}><TandOnder id="o1" label="Kies" /></div>
-          <div style={{ marginTop: "14px" }}><TandOnder id="o2" label="Hoektand" /></div>
-          <div style={{ marginTop: "18px" }}><TandOnder id="o3" label="Snijtand" /></div>
-          <div style={{ marginTop: "20px" }}><TandOnder id="o4" label="Snijtand" /></div>
-          <div style={{ marginTop: "20px" }}><TandOnder id="o5" label="Snijtand" /></div>
-          <div style={{ marginTop: "18px" }}><TandOnder id="o6" label="Snijtand" /></div>
-          <div style={{ marginTop: "14px" }}><TandOnder id="o7" label="Hoektand" /></div>
-          <div style={{ marginTop: "8px" }}><TandOnder id="o8" label="Kies" /></div>
-        </div>
-
-        {/* Onderkaak label */}
-        <div style={{ fontSize: "11px", color: "#aaa", marginTop: "10px", textAlign: "center", fontWeight: "700", letterSpacing: "0.08em", textTransform: "uppercase" }}>{t.teeth_lower}</div>
+        <TandRij items={bovenTandjes} label={t.teeth_upper} />
+        <div style={{ height: "1px", background: "#F0E4D4", margin: "4px 0 16px" }} />
+        <TandRij items={onderTandjes} label={t.teeth_lower} />
       </div>
 
       <div style={{ background: "#FFF0E8", borderRadius: "14px", padding: "12px", marginTop: "16px", fontSize: "12px", color: "#FF6B35", textAlign: "center", fontWeight: "700" }}>
-        Oranje met vinkje = doorgekomen — tik op een tandje om bij te houden
+        Oranje = doorgekomen — tik op een tandje om bij te houden
       </div>
     </div>
   );
