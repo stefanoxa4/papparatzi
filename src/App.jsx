@@ -529,35 +529,25 @@ const ZindelijkheidTracker = ({ t }) => {
   );
 };
 
-// ── TANDJES KAART — SVG CURVE GEBIT ──────────────────────────────────────
+// ── TANDJES KAART ─────────────────────────────────────────────────────────
 const TandjesKaart = ({ t }) => {
   const [tandjes, setTandjes] = useState({});
   const toggle = (id) => setTandjes(prev => ({ ...prev, [id]: !prev[id] }));
   const totaal = Object.values(tandjes).filter(Boolean).length;
 
-  // Bovenkaak tanden — curve omhoog, van links naar rechts
-  const boven = [
-    { id: "b1", label: "Kies", cx: 30, cy: 38, rx: 12, ry: 10 },
-    { id: "b2", label: "Hoektand", cx: 57, cy: 28, rx: 10, ry: 11 },
-    { id: "b3", label: "Snijtand", cx: 82, cy: 22, rx: 10, ry: 12 },
-    { id: "b4", label: "Snijtand", cx: 107, cy: 20, rx: 10, ry: 12 },
-    { id: "b5", label: "Snijtand", cx: 133, cy: 20, rx: 10, ry: 12 },
-    { id: "b6", label: "Snijtand", cx: 158, cy: 22, rx: 10, ry: 12 },
-    { id: "b7", label: "Hoektand", cx: 183, cy: 28, rx: 10, ry: 11 },
-    { id: "b8", label: "Kies", cx: 210, cy: 38, rx: 12, ry: 10 },
-  ];
+  const Tand = ({ id, label }) => (
+    <button onClick={() => toggle(id)} title={label}
+      style={{ width: "36px", height: "36px", borderRadius: "6px 6px 12px 12px", border: "2px solid", borderColor: tandjes[id] ? "#FF5A10" : "#E0D0C0", background: tandjes[id] ? "linear-gradient(180deg, #FF7A45, #FF4500)" : "#FFF8F0", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", color: tandjes[id] ? "#fff" : "#ddd", fontWeight: "bold", flexShrink: 0 }}>
+      {tandjes[id] ? "✓" : ""}
+    </button>
+  );
 
-  // Onderkaak tanden — curve omlaag
-  const onder = [
-    { id: "o1", label: "Kies", cx: 30, cy: 62, rx: 12, ry: 10 },
-    { id: "o2", label: "Hoektand", cx: 57, cy: 72, rx: 10, ry: 11 },
-    { id: "o3", label: "Snijtand", cx: 82, cy: 78, rx: 10, ry: 12 },
-    { id: "o4", label: "Snijtand", cx: 107, cy: 80, rx: 10, ry: 12 },
-    { id: "o5", label: "Snijtand", cx: 133, cy: 80, rx: 10, ry: 12 },
-    { id: "o6", label: "Snijtand", cx: 158, cy: 78, rx: 10, ry: 12 },
-    { id: "o7", label: "Hoektand", cx: 183, cy: 72, rx: 10, ry: 11 },
-    { id: "o8", label: "Kies", cx: 210, cy: 62, rx: 12, ry: 10 },
-  ];
+  const TandOnder = ({ id, label }) => (
+    <button onClick={() => toggle(id)} title={label}
+      style={{ width: "36px", height: "36px", borderRadius: "12px 12px 6px 6px", border: "2px solid", borderColor: tandjes[id] ? "#FF5A10" : "#E0D0C0", background: tandjes[id] ? "linear-gradient(0deg, #FF7A45, #FF4500)" : "#FFF8F0", cursor: "pointer", transition: "all 0.15s", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "12px", color: tandjes[id] ? "#fff" : "#ddd", fontWeight: "bold", flexShrink: 0 }}>
+      {tandjes[id] ? "✓" : ""}
+    </button>
+  );
 
   return (
     <div style={{ flex: 1, overflowY: "auto", padding: "20px", fontFamily: "'Nunito', sans-serif" }}>
@@ -572,47 +562,42 @@ const TandjesKaart = ({ t }) => {
       </div>
 
       <div style={{ background: "#fff", borderRadius: "16px", padding: "20px" }}>
-        <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "8px", textAlign: "center", fontWeight: "700", letterSpacing: "0.1em" }}>{t.teeth_upper}</div>
+        {/* Bovenkaak label */}
+        <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "10px", textAlign: "center", fontWeight: "700", letterSpacing: "0.08em", textTransform: "uppercase" }}>{t.teeth_upper}</div>
 
-        <svg viewBox="0 0 240 100" width="100%" style={{ display: "block", maxWidth: "320px", margin: "0 auto" }}>
-          {boven.map(tooth => (
-            <g key={tooth.id} onClick={() => toggle(tooth.id)} style={{ cursor: "pointer" }}>
-              <ellipse cx={tooth.cx} cy={tooth.cy} rx={tooth.rx} ry={tooth.ry}
-                fill={tandjes[tooth.id] ? "#FF6B35" : "#FFF8F0"}
-                stroke={tandjes[tooth.id] ? "#FF5A10" : "#E5D5C5"}
-                strokeWidth="1.5" />
-              {tandjes[tooth.id] && (
-                <text x={tooth.cx} y={tooth.cy + 4} textAnchor="middle" fontSize="8" fill="white" fontWeight="bold">✓</text>
-              )}
-            </g>
-          ))}
-        </svg>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", margin: "8px 0" }}>
-          <div style={{ flex: 1, height: "2px", background: "#F0E4D4" }} />
-          <div style={{ fontSize: "10px", color: "#ccc", fontWeight: "700" }}>· · · · ·</div>
-          <div style={{ flex: 1, height: "2px", background: "#F0E4D4" }} />
+        {/* Bovenkaak — curve gesimuleerd met margin */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-end", gap: "3px", marginBottom: "4px" }}>
+          <div style={{ marginBottom: "8px" }}><Tand id="b1" label="Kies" /></div>
+          <div style={{ marginBottom: "14px" }}><Tand id="b2" label="Hoektand" /></div>
+          <div style={{ marginBottom: "18px" }}><Tand id="b3" label="Snijtand" /></div>
+          <div style={{ marginBottom: "20px" }}><Tand id="b4" label="Snijtand" /></div>
+          <div style={{ marginBottom: "20px" }}><Tand id="b5" label="Snijtand" /></div>
+          <div style={{ marginBottom: "18px" }}><Tand id="b6" label="Snijtand" /></div>
+          <div style={{ marginBottom: "14px" }}><Tand id="b7" label="Hoektand" /></div>
+          <div style={{ marginBottom: "8px" }}><Tand id="b8" label="Kies" /></div>
         </div>
 
-        <svg viewBox="0 0 240 100" width="100%" style={{ display: "block", maxWidth: "320px", margin: "0 auto" }}>
-          {onder.map(tooth => (
-            <g key={tooth.id} onClick={() => toggle(tooth.id)} style={{ cursor: "pointer" }}>
-              <ellipse cx={tooth.cx} cy={tooth.cy} rx={tooth.rx} ry={tooth.ry}
-                fill={tandjes[tooth.id] ? "#FF6B35" : "#FFF8F0"}
-                stroke={tandjes[tooth.id] ? "#FF5A10" : "#E5D5C5"}
-                strokeWidth="1.5" />
-              {tandjes[tooth.id] && (
-                <text x={tooth.cx} y={tooth.cy + 4} textAnchor="middle" fontSize="8" fill="white" fontWeight="bold">✓</text>
-              )}
-            </g>
-          ))}
-        </svg>
+        {/* Middenlijn */}
+        <div style={{ height: "2px", background: "#F0E4D4", borderRadius: "2px", margin: "6px 0" }} />
 
-        <div style={{ fontSize: "11px", color: "#aaa", marginTop: "8px", textAlign: "center", fontWeight: "700", letterSpacing: "0.1em" }}>{t.teeth_lower}</div>
+        {/* Onderkaak — gespiegeld */}
+        <div style={{ display: "flex", justifyContent: "center", alignItems: "flex-start", gap: "3px", marginTop: "4px" }}>
+          <div style={{ marginTop: "8px" }}><TandOnder id="o1" label="Kies" /></div>
+          <div style={{ marginTop: "14px" }}><TandOnder id="o2" label="Hoektand" /></div>
+          <div style={{ marginTop: "18px" }}><TandOnder id="o3" label="Snijtand" /></div>
+          <div style={{ marginTop: "20px" }}><TandOnder id="o4" label="Snijtand" /></div>
+          <div style={{ marginTop: "20px" }}><TandOnder id="o5" label="Snijtand" /></div>
+          <div style={{ marginTop: "18px" }}><TandOnder id="o6" label="Snijtand" /></div>
+          <div style={{ marginTop: "14px" }}><TandOnder id="o7" label="Hoektand" /></div>
+          <div style={{ marginTop: "8px" }}><TandOnder id="o8" label="Kies" /></div>
+        </div>
+
+        {/* Onderkaak label */}
+        <div style={{ fontSize: "11px", color: "#aaa", marginTop: "10px", textAlign: "center", fontWeight: "700", letterSpacing: "0.08em", textTransform: "uppercase" }}>{t.teeth_lower}</div>
       </div>
 
       <div style={{ background: "#FFF0E8", borderRadius: "14px", padding: "12px", marginTop: "16px", fontSize: "12px", color: "#FF6B35", textAlign: "center", fontWeight: "700" }}>
-        Oranje = doorgekomen — tik op een tandje om bij te houden
+        Oranje met vinkje = doorgekomen — tik op een tandje om bij te houden
       </div>
     </div>
   );
