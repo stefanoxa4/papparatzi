@@ -529,6 +529,73 @@ const ZindelijkheidTracker = ({ t }) => {
   );
 };
 
+// ── TIPS PAGINA — ALLE LEEFTIJDEN, 2x2 GRID, UITKLAPBAAR ────────────────
+const TipsPage = ({ childAge, lang, t, onChat }) => {
+  const [openTip, setOpenTip] = useState(null);
+  const tips = AGE_TIPS[lang] || AGE_TIPS.nl;
+
+  // Alle leeftijdscategorien tonen
+  const allAges = Object.entries(tips);
+
+  return (
+    <div style={{ flex: 1, overflowY: "auto", padding: "20px", fontFamily: "'Nunito', sans-serif" }}>
+      <h2 style={{ fontFamily: "'Fredoka', sans-serif", color: "#FF5A10", fontSize: "22px", margin: "0 0 16px" }}>
+        {t.tips_title} {childAge ? `${childAge} ${t.tips_suffix}` : t.tips_all}
+      </h2>
+
+      {allAges.map(([age, ageTips]) => (
+        <div key={age} style={{ marginBottom: "24px" }}>
+          {/* Leeftijdslabel */}
+          <div style={{ fontSize: "12px", fontWeight: "800", color: "#FF8C5A", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "12px", padding: "6px 12px", background: "#FFF0E8", borderRadius: "50px", display: "inline-block" }}>
+            {age} {t.tips_suffix}
+          </div>
+
+          {/* 2x2 grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+            {ageTips.map((item, i) => {
+              const key = `${age}-${i}`;
+              const isOpen = openTip === key;
+              return (
+                <div key={key} style={{ background: "#fff", borderRadius: "16px", overflow: "hidden", border: `1.5px solid ${isOpen ? "#FF6B35" : "#F0E4D4"}`, boxShadow: isOpen ? "0 4px 16px rgba(255,90,16,0.1)" : "0 2px 8px rgba(0,0,0,0.04)", transition: "all 0.2s", gridColumn: isOpen ? "1 / -1" : "auto" }}>
+                  {/* Kaart header */}
+                  <button onClick={() => setOpenTip(isOpen ? null : key)}
+                    style={{ width: "100%", padding: "14px", display: "flex", alignItems: "center", justifyContent: "space-between", background: "none", border: "none", cursor: "pointer", fontFamily: "'Nunito', sans-serif" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: isOpen ? "#FF6B35" : "#FFF0E8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.2s" }}>
+                        <div style={{ filter: isOpen ? "brightness(0) invert(1)" : "none" }}>{item.icon}</div>
+                      </div>
+                      <span style={{ fontWeight: "800", fontSize: "13px", color: "#1A1A2E", textAlign: "left", lineHeight: 1.3 }}>{item.tip}</span>
+                    </div>
+                    <span style={{ color: "#FF6B35", fontSize: "16px", fontWeight: "700", flexShrink: 0, marginLeft: "8px" }}>{isOpen ? "−" : "+"}</span>
+                  </button>
+
+                  {/* Uitklapbare content */}
+                  {isOpen && (
+                    <div style={{ padding: "0 14px 14px" }}>
+                      <div style={{ background: "#FFF8F0", borderRadius: "12px", padding: "12px", marginBottom: "10px" }}>
+                        {item.tips.map((tip, j) => (
+                          <div key={j} style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "6px 0", borderBottom: j < item.tips.length - 1 ? "1px solid #F0E4D4" : "none" }}>
+                            <div style={{ width: "20px", height: "20px", borderRadius: "50%", background: "#FF6B35", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "11px", fontWeight: "800", flexShrink: 0, marginTop: "1px" }}>{j + 1}</div>
+                            <span style={{ fontSize: "13px", color: "#444", lineHeight: 1.5, fontWeight: "600" }}>{tip}</span>
+                          </div>
+                        ))}
+                      </div>
+                      <button onClick={() => onChat(item.vraag)}
+                        style={{ width: "100%", padding: "10px", borderRadius: "12px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                        <IconChat /> {t.tips_chat_btn}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // ── TANDJES KAART ─────────────────────────────────────────────────────────
 const TandjesKaart = ({ t }) => {
   const [tandjes, setTandjes] = useState({});
