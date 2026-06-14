@@ -778,7 +778,7 @@ export default function App() {
 
       {activeTab === "tips" && <TipsPage childAge={childAge} lang={lang} t={t} onChat={handleChatFromTips} />}
       {activeTab === "tracker" && <ZindelijkheidTracker t={t} />}
-      {activeTab === "tandjes" && <TandjiesKaart t={t} />}
+      {activeTab === "tandjes" && <TandjesKaart t={t} />}
 
       <div style={{ textAlign: "center", fontSize: "10px", color: "#CCC", padding: "5px 20px 8px", background: "#fff" }}>{t.disclaimer}</div>
     </div>
