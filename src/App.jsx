@@ -92,6 +92,13 @@ const T = {
     poll_label: "POLL VAN DE WEEK",
     poll_thanks: "Bedankt voor je stem!",
     days_short: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za"],
+    lengte_title: "Lengte",
+    lengte_sub: "Houd de lengte bij en bekijk het verloop",
+    gewicht_title: "Gewicht",
+    gewicht_sub: "Houd het gewicht bij en bekijk het verloop",
+    growth_curve_title: "Officiële groeicurve",
+    growth_curve_sub: "Vergelijk met de groeicurve via GroeiGids of Mijn CJG",
+    menu_profile: "Profiel",
     dashboard_tab: "Vandaag",
     voortgang_tab: "Voortgang",
     dashboard_greeting: "Hoi",
@@ -188,6 +195,13 @@ const T = {
     poll_label: "POLL OF THE WEEK",
     poll_thanks: "Thanks for voting!",
     days_short: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    lengte_title: "Height",
+    lengte_sub: "Track height and view the trend",
+    gewicht_title: "Weight",
+    gewicht_sub: "Track weight and view the trend",
+    growth_curve_title: "Official growth chart",
+    growth_curve_sub: "Compare with the growth chart via GroeiGids or your local youth health service",
+    menu_profile: "Profile",
     dashboard_tab: "Today",
     voortgang_tab: "Progress",
     dashboard_greeting: "Hi",
@@ -244,6 +258,8 @@ const IconGrowth = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="n
 const IconMilestone = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 21V4"/><path d="M5 4h13l-3 4 3 4H5"/></svg>;
 const IconVaccine = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5z"/><path d="M12 8v6M9 11h6"/></svg>;
 const IconLock = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>;
+const IconExternal = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
+const IconMenu = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
 
 // ── AGE TIPS WITH CONCRETE CONTENT ────────────────────────────────────────
 const AGE_TIPS = {
@@ -747,39 +763,46 @@ const TandjesKaart = ({ t, tandjes, setTandjes }) => {
   );
 };
 
-// ── GROEI CHART (eenvoudige SVG lijngrafiek, geen externe libs) ──────────
-const GroeiChart = ({ data, dataKey, color }) => {
-  const points = data.filter(d => d[dataKey] != null);
-  if (points.length < 2) return null;
-  const values = points.map(d => d[dataKey]);
+// ── METING CHART (SVG lijngrafiek met as-labels, geen externe libs) ───────
+const MetingChart = ({ data, color, unit, lang }) => {
+  if (data.length < 2) return null;
+  const values = data.map(d => d.waarde);
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = (max - min) || 1;
-  const W = 280, H = 90, P = 8;
-  const coords = points.map((d, i) => ({
-    x: P + (i / (points.length - 1)) * (W - 2 * P),
-    y: H - P - ((d[dataKey] - min) / range) * (H - 2 * P),
+  const W = 300, H = 130, PL = 34, PR = 10, PT = 14, PB = 24;
+  const innerW = W - PL - PR;
+  const innerH = H - PT - PB;
+  const coords = data.map((d, i) => ({
+    x: PL + (i / (data.length - 1)) * innerW,
+    y: PT + innerH - ((d.waarde - min) / range) * innerH,
   }));
   const pointsStr = coords.map(c => `${c.x},${c.y}`).join(" ");
+  const formatShort = (d) => new Date(d).toLocaleDateString(lang === "nl" ? "nl-NL" : "en-US", { day: "numeric", month: "short" });
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: "320px", display: "block", margin: "0 auto" }}>
+    <svg viewBox={`0 0 ${W} ${H}`} width="100%" style={{ maxWidth: "360px", display: "block", margin: "0 auto" }}>
+      <text x="2" y={PT + 4} fontSize="10" fill="#bbb">{max} {unit}</text>
+      <text x="2" y={PT + innerH} fontSize="10" fill="#bbb">{min} {unit}</text>
+      <line x1={PL} y1={PT} x2={PL} y2={PT + innerH} stroke="#F0E4D4" strokeWidth="1" />
+      <line x1={PL} y1={PT + innerH} x2={W - PR} y2={PT + innerH} stroke="#F0E4D4" strokeWidth="1" />
       <polyline points={pointsStr} fill="none" stroke={color} strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
-      {coords.map((c, i) => <circle key={i} cx={c.x} cy={c.y} r="3" fill={color} />)}
+      {coords.map((c, i) => <circle key={i} cx={c.x} cy={c.y} r="3.5" fill={color} />)}
+      <text x={PL} y={H - 4} fontSize="10" fill="#bbb" textAnchor="start">{formatShort(data[0].datum)}</text>
+      <text x={W - PR} y={H - 4} fontSize="10" fill="#bbb" textAnchor="end">{formatShort(data[data.length - 1].datum)}</text>
     </svg>
   );
 };
 
-// ── GROEITRACKER - lengte en gewicht ──────────────────────────────────────
-const GroeiTracker = ({ t, lang, data, setData }) => {
+// ── METINGTRACKER - generiek, voor Lengte of Gewicht apart ────────────────
+const MetingTracker = ({ t, lang, title, sub, unit, gradient, lineColor, data, setData }) => {
   const [datum, setDatum] = useState("");
-  const [lengte, setLengte] = useState("");
-  const [gewicht, setGewicht] = useState("");
+  const [waarde, setWaarde] = useState("");
 
   const add = () => {
-    if (!datum || (!lengte && !gewicht)) return;
-    const entry = { id: Date.now(), datum, lengte: lengte ? parseFloat(lengte) : null, gewicht: gewicht ? parseFloat(gewicht) : null };
+    if (!datum || !waarde) return;
+    const entry = { id: Date.now(), datum, waarde: parseFloat(waarde) };
     setData(prev => [...prev, entry].sort((a, b) => a.datum.localeCompare(b.datum)));
-    setDatum(""); setLengte(""); setGewicht("");
+    setDatum(""); setWaarde("");
   };
 
   const remove = (id) => setData(prev => prev.filter(e => e.id !== id));
@@ -790,39 +813,29 @@ const GroeiTracker = ({ t, lang, data, setData }) => {
   return (
     <div style={{ flex: 1, overflowY: "auto", padding: "20px", fontFamily: "'Nunito', sans-serif" }}>
       <div style={{ background: "#fff", borderRadius: "20px", padding: "20px", marginBottom: "16px", textAlign: "center" }}>
-        <h2 style={{ fontFamily: "'Fredoka', sans-serif", color: "#FF5A10", fontSize: "22px", margin: "0 0 4px" }}>{t.groei_title}</h2>
-        <p style={{ color: "#888", fontSize: "13px", margin: 0 }}>{t.groei_sub}</p>
+        <h2 style={{ fontFamily: "'Fredoka', sans-serif", color: "#FF5A10", fontSize: "22px", margin: "0 0 4px" }}>{title}</h2>
+        <p style={{ color: "#888", fontSize: "13px", margin: 0 }}>{sub}</p>
       </div>
 
       {latest && (
-        <div style={{ background: "linear-gradient(135deg, #FF6B35, #FF8C5A)", borderRadius: "16px", padding: "16px", marginBottom: "16px", display: "flex", justifyContent: "space-around", textAlign: "center" }}>
-          <div>
-            <div style={{ fontSize: "24px", fontFamily: "'Fredoka', sans-serif", color: "#fff", fontWeight: "700" }}>{latest.lengte != null ? `${latest.lengte} cm` : "–"}</div>
-            <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "12px" }}>{t.groei_length}</div>
-          </div>
-          <div>
-            <div style={{ fontSize: "24px", fontFamily: "'Fredoka', sans-serif", color: "#fff", fontWeight: "700" }}>{latest.gewicht != null ? `${latest.gewicht} kg` : "–"}</div>
-            <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "12px" }}>{t.groei_weight}</div>
-          </div>
+        <div style={{ background: gradient, borderRadius: "16px", padding: "20px", marginBottom: "16px", textAlign: "center" }}>
+          <div style={{ fontSize: "32px", fontFamily: "'Fredoka', sans-serif", color: "#fff", fontWeight: "700" }}>{latest.waarde} {unit}</div>
+          <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "12px" }}>{formatDate(latest.datum)}</div>
         </div>
       )}
 
       {data.length >= 2 && (
         <div style={{ background: "#fff", borderRadius: "16px", padding: "16px", marginBottom: "16px" }}>
-          <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "8px", fontWeight: "700" }}>{t.groei_length}</div>
-          <GroeiChart data={data} dataKey="lengte" color="#FF6B35" />
-          <div style={{ fontSize: "11px", color: "#aaa", margin: "16px 0 8px", fontWeight: "700" }}>{t.groei_weight}</div>
-          <GroeiChart data={data} dataKey="gewicht" color="#4A90D9" />
+          <MetingChart data={data} color={lineColor} unit={unit} lang={lang} />
         </div>
       )}
 
       <div style={{ background: "#fff", borderRadius: "16px", padding: "16px", marginBottom: "16px" }}>
-        <div style={{ display: "flex", gap: "8px", marginBottom: "10px", flexWrap: "wrap" }}>
-          <input type="date" value={datum} onChange={e => setDatum(e.target.value)} style={{ ...inputStyle, flex: "1 1 130px" }} />
-          <input type="number" placeholder={t.groei_length} value={lengte} onChange={e => setLengte(e.target.value)} style={{ ...inputStyle, width: "100px" }} />
-          <input type="number" placeholder={t.groei_weight} value={gewicht} onChange={e => setGewicht(e.target.value)} style={{ ...inputStyle, width: "100px" }} />
+        <div style={{ display: "flex", gap: "8px" }}>
+          <input type="date" value={datum} onChange={e => setDatum(e.target.value)} style={{ ...inputStyle, flex: "1 1 auto" }} />
+          <input type="number" placeholder={unit} value={waarde} onChange={e => setWaarde(e.target.value)} style={{ ...inputStyle, width: "90px" }} />
         </div>
-        <button onClick={add} style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "14px", cursor: "pointer" }}>{t.groei_add}</button>
+        <button onClick={add} style={{ width: "100%", padding: "12px", borderRadius: "12px", background: gradient, color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "14px", cursor: "pointer", marginTop: "10px" }}>{t.groei_add}</button>
       </div>
 
       {data.length > 0 ? (
@@ -831,7 +844,7 @@ const GroeiTracker = ({ t, lang, data, setData }) => {
           {[...data].reverse().map(entry => (
             <div key={entry.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "1px solid #F0E4D4" }}>
               <span style={{ fontSize: "13px", color: "#444", fontWeight: "700" }}>{formatDate(entry.datum)}</span>
-              <span style={{ fontSize: "13px", color: "#666" }}>{entry.lengte != null ? `${entry.lengte} cm` : ""} {entry.gewicht != null ? `${entry.gewicht} kg` : ""}</span>
+              <span style={{ fontSize: "13px", color: "#666" }}>{entry.waarde} {unit}</span>
               <button onClick={() => remove(entry.id)} style={{ background: "none", border: "none", color: "#FF6B35", cursor: "pointer", fontSize: "18px", fontWeight: "700", padding: "0 4px" }}>×</button>
             </div>
           ))}
@@ -941,20 +954,19 @@ const MiniCard = ({ icon, label, value, sub, onClick, wide }) => (
 );
 
 // ── VOORTGANG - hub met 5 trackers ─────────────────────────────────────────
-const VoortgangPage = ({ t, isPremium, setShowUpgrade, onOpenTracker, zindelijkheidDays, tandjes, groeiData, mijlpalenData, vaccinatiesChecked }) => {
+const VoortgangPage = ({ t, isPremium, setShowUpgrade, onOpenTracker, zindelijkheidDays, tandjes, lengteData, gewichtData, mijlpalenData, vaccinatiesChecked }) => {
   const droogDagen = Object.values(zindelijkheidDays).filter(v => v === "droog").length;
   const tandjesCount = Object.values(tandjes).filter(Boolean).length;
-  const latestGroei = groeiData.length > 0 ? groeiData[groeiData.length - 1] : null;
-  const groeiStat = latestGroei
-    ? [latestGroei.lengte != null ? `${latestGroei.lengte} cm` : null, latestGroei.gewicht != null ? `${latestGroei.gewicht} kg` : null].filter(Boolean).join(", ")
-    : t.dashboard_no_data;
+  const latestLengte = lengteData.length > 0 ? lengteData[lengteData.length - 1] : null;
+  const latestGewicht = gewichtData.length > 0 ? gewichtData[gewichtData.length - 1] : null;
   const mijlpalenCount = Object.values(mijlpalenData).filter(m => m && m.datum).length;
   const vaccinatiesCount = Object.values(vaccinatiesChecked).filter(Boolean).length;
 
   const items = [
     { id: "zindelijkheid", icon: <IconPotty />, label: t.tracker_tab, stat: `${droogDagen} ${t.tracker_days}` },
     { id: "tandjes", icon: <IconTooth />, label: t.teeth_tab, stat: `${tandjesCount} / 20` },
-    { id: "groei", icon: <IconGrowth />, label: t.groei_title, stat: groeiStat },
+    { id: "lengte", icon: <IconGrowth />, label: t.lengte_title, stat: latestLengte ? `${latestLengte.waarde} cm` : t.dashboard_no_data },
+    { id: "gewicht", icon: <IconGrowth />, label: t.gewicht_title, stat: latestGewicht ? `${latestGewicht.waarde} kg` : t.dashboard_no_data },
     { id: "mijlpalen", icon: <IconMilestone />, label: t.milestones_title, stat: `${mijlpalenCount} / 4` },
     { id: "vaccinaties", icon: <IconVaccine />, label: t.vaccinations_title, stat: `${vaccinatiesCount} / ${VACCINATIE_SCHEMA.nl.length}` },
   ];
@@ -973,12 +985,21 @@ const VoortgangPage = ({ t, isPremium, setShowUpgrade, onOpenTracker, zindelijkh
           </button>
         ))}
       </div>
+
+      <a href="https://www.groeigids.nl/" target="_blank" rel="noopener noreferrer"
+        style={{ marginTop: "12px", display: "flex", alignItems: "center", gap: "12px", background: "#fff", borderRadius: "16px", padding: "16px", border: "1.5px solid #F0E4D4", textDecoration: "none", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+        <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "#FFF0E8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><IconExternal /></div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: "800", fontSize: "14px", color: "#1A1A2E" }}>{t.growth_curve_title}</div>
+          <div style={{ fontSize: "12px", color: "#aaa" }}>{t.growth_curve_sub}</div>
+        </div>
+      </a>
     </div>
   );
 };
 
 // ── DASHBOARD - startscherm ────────────────────────────────────────────────
-const Dashboard = ({ childName, childAge, lang, t, isPremium, zindelijkheidDays, tandjes, groeiData, mijlpalenData, vaccinatiesChecked, onNavigateVoortgang, onChat, setShowUpgrade }) => {
+const Dashboard = ({ childName, childAge, lang, t, isPremium, zindelijkheidDays, tandjes, lengteData, gewichtData, mijlpalenData, vaccinatiesChecked, onNavigateVoortgang, onChat, setShowUpgrade }) => {
   const tipsData = AGE_TIPS[lang] || AGE_TIPS.nl;
   const ageTips = tipsData[childAge] || tipsData["2–4"];
   const tipIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % ageTips.length;
@@ -986,10 +1007,8 @@ const Dashboard = ({ childName, childAge, lang, t, isPremium, zindelijkheidDays,
 
   const droogDagen = Object.values(zindelijkheidDays).filter(v => v === "droog").length;
   const tandjesCount = Object.values(tandjes).filter(Boolean).length;
-  const latestGroei = groeiData.length > 0 ? groeiData[groeiData.length - 1] : null;
-  const groeiStat = latestGroei
-    ? [latestGroei.lengte != null ? `${latestGroei.lengte} cm` : null, latestGroei.gewicht != null ? `${latestGroei.gewicht} kg` : null].filter(Boolean).join(", ")
-    : t.dashboard_no_data;
+  const latestLengte = lengteData.length > 0 ? lengteData[lengteData.length - 1] : null;
+  const latestGewicht = gewichtData.length > 0 ? gewichtData[gewichtData.length - 1] : null;
   const mijlpalenCount = Object.values(mijlpalenData).filter(m => m && m.datum).length;
   const vaccinatiesCount = Object.values(vaccinatiesChecked).filter(Boolean).length;
 
@@ -1019,9 +1038,10 @@ const Dashboard = ({ childName, childAge, lang, t, isPremium, zindelijkheidDays,
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
             <MiniCard icon={<IconPotty />} label={t.tracker_tab} value={`${droogDagen}`} sub={t.tracker_days} onClick={() => onNavigateVoortgang("zindelijkheid")} />
             <MiniCard icon={<IconTooth />} label={t.teeth_tab} value={`${tandjesCount} / 20`} onClick={() => onNavigateVoortgang("tandjes")} />
-            <MiniCard icon={<IconGrowth />} label={t.groei_title} value={groeiStat} onClick={() => onNavigateVoortgang("groei")} />
+            <MiniCard icon={<IconGrowth />} label={t.lengte_title} value={latestLengte ? `${latestLengte.waarde} cm` : t.dashboard_no_data} onClick={() => onNavigateVoortgang("lengte")} />
+            <MiniCard icon={<IconGrowth />} label={t.gewicht_title} value={latestGewicht ? `${latestGewicht.waarde} kg` : t.dashboard_no_data} onClick={() => onNavigateVoortgang("gewicht")} />
             <MiniCard icon={<IconMilestone />} label={t.milestones_title} value={`${mijlpalenCount} / 4`} onClick={() => onNavigateVoortgang("mijlpalen")} />
-            <MiniCard icon={<IconVaccine />} label={t.vaccinations_title} value={`${vaccinatiesCount} / ${VACCINATIE_SCHEMA.nl.length}`} sub={t.vaccinations_progress} onClick={() => onNavigateVoortgang("vaccinaties")} wide />
+            <MiniCard icon={<IconVaccine />} label={t.vaccinations_title} value={`${vaccinatiesCount} / ${VACCINATIE_SCHEMA.nl.length}`} sub={t.vaccinations_progress} onClick={() => onNavigateVoortgang("vaccinaties")} />
           </div>
         </>
       ) : (
@@ -1037,6 +1057,71 @@ const Dashboard = ({ childName, childAge, lang, t, isPremium, zindelijkheidDays,
   );
 };
 
+// ── SIDE MENU - schuift vanaf links open ──────────────────────────────────
+const SideMenu = ({ open, onClose, t, activeTab, setActiveTab, setVoortgangView, childName, setChildName, childAge, setChildAge, user, handleLogout, setShowLogin, isPremium, setShowUpgrade }) => {
+  const navigate = (tabId) => {
+    setActiveTab(tabId);
+    if (tabId === "voortgang") setVoortgangView(null);
+    onClose();
+  };
+
+  const tabs = [
+    { id: "dashboard", label: t.dashboard_tab },
+    { id: "chat", label: t.chat_tab },
+    { id: "tips", label: t.tips_tab },
+    { id: "voortgang", label: t.voortgang_tab },
+  ];
+
+  return (
+    <>
+      {open && <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(26,26,46,0.45)", zIndex: 200 }} />}
+      <div style={{ position: "fixed", top: 0, left: 0, height: "100vh", width: "min(290px, 82vw)", background: "#fff", zIndex: 201, transform: open ? "translateX(0)" : "translateX(-105%)", transition: "transform 0.28s ease", boxShadow: "4px 0 28px rgba(0,0,0,0.12)", overflowY: "auto", display: "flex", flexDirection: "column", fontFamily: "'Nunito', sans-serif" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px", borderBottom: "1px solid #F0E4D4" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <LogoSVG size={32} />
+            <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "17px", color: "#FF5A10" }}>Papparatzi</span>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: "24px", color: "#aaa", cursor: "pointer", padding: "0 4px", lineHeight: 1 }}>×</button>
+        </div>
+
+        <div style={{ padding: "12px" }}>
+          {tabs.map(tab => (
+            <button key={tab.id} onClick={() => navigate(tab.id)} style={{ display: "block", width: "100%", textAlign: "left", padding: "12px 14px", borderRadius: "12px", border: "none", background: activeTab === tab.id ? "#FFF0E8" : "none", color: activeTab === tab.id ? "#FF6B35" : "#444", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "14px", cursor: "pointer", marginBottom: "4px" }}>
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div style={{ padding: "16px", borderTop: "1px solid #F0E4D4" }}>
+          <div style={{ fontSize: "11px", fontWeight: "800", color: "#FF8C5A", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: "10px" }}>{t.menu_profile}</div>
+          <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#777", marginBottom: "4px" }}>{t.child_name_label}</label>
+          <input value={childName} onChange={e => setChildName(e.target.value)} placeholder={t.child_name_placeholder} style={{ width: "100%", padding: "9px 12px", borderRadius: "10px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "13px", color: "#333", boxSizing: "border-box", marginBottom: "12px" }} />
+          <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#777", marginBottom: "6px" }}>{t.age_label}</label>
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+            {["0–1", "1–2", "2–4", "4–6", "6–10", "10+"].map(age => (
+              <button key={age} onClick={() => setChildAge(childAge === age ? "" : age)} style={{ padding: "6px 12px", borderRadius: "50px", border: `2px solid ${childAge === age ? "#FF6B35" : "#E5D5C5"}`, background: childAge === age ? "#FF6B35" : "transparent", color: childAge === age ? "#fff" : "#777", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "12px", cursor: "pointer" }}>{age}</button>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ padding: "16px", borderTop: "1px solid #F0E4D4", display: "flex", flexDirection: "column", gap: "10px" }}>
+          {user
+            ? <button onClick={() => { handleLogout(); onClose(); }} style={{ background: "#FFF0E8", color: "#FF6B35", border: "1.5px solid rgba(255,107,53,0.2)", padding: "10px 14px", borderRadius: "12px", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}><IconLogin />{t.logout_btn}</button>
+            : <button onClick={() => { setShowLogin(true); onClose(); }} style={{ background: "#FFF0E8", color: "#FF6B35", border: "1.5px solid rgba(255,107,53,0.2)", padding: "10px 14px", borderRadius: "12px", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}><IconLogin />{t.login_btn}</button>
+          }
+          {!isPremium
+            ? <button onClick={() => { setShowUpgrade(true); onClose(); }} style={{ background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", padding: "10px 14px", borderRadius: "12px", fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}><IconStar />{t.premium_btn}</button>
+            : <div style={{ background: "linear-gradient(135deg, #FFD700, #FFA500)", color: "#fff", padding: "10px 14px", borderRadius: "12px", fontSize: "13px", fontWeight: "900", display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}><IconStar />{t.premium_badge}</div>
+          }
+        </div>
+
+        <div style={{ flex: 1 }} />
+        <div style={{ padding: "16px", textAlign: "center", fontSize: "10px", color: "#CCC" }}>{t.disclaimer}</div>
+      </div>
+    </>
+  );
+};
+
 // ── MAIN APP ───────────────────────────────────────────────────────────────
 export default function App() {
   const [lang] = useState(getBrowserLang);
@@ -1048,6 +1133,7 @@ export default function App() {
   const [questionsUsed, setQuestionsUsed] = useState(0);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [user, setUser] = useState(null);
   const [childName, setChildName] = useState("");
   const [childAge, setChildAge] = useState("");
@@ -1063,7 +1149,8 @@ export default function App() {
     return d;
   });
   const [tandjes, setTandjes] = useState({});
-  const [groeiData, setGroeiData] = useState([]);
+  const [lengteData, setLengteData] = useState([]);
+  const [gewichtData, setGewichtData] = useState([]);
   const [mijlpalenData, setMijlpalenData] = useState({ woord: {}, stapjes: {}, tandje: {}, hapje: {} });
   const [vaccinatiesChecked, setVaccinatiesChecked] = useState({});
   const messagesEndRef = useRef(null);
@@ -1160,26 +1247,21 @@ export default function App() {
       {showLogin && <LoginScreen t={t} onClose={() => setShowLogin(false)} onSuccess={() => setShowLogin(false)} />}
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 16px", background: "#fff", borderBottom: "1px solid #F0E4D4", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-          {activeTab !== "dashboard" && <button onClick={() => { if (activeTab === "voortgang" && voortgangView) { setVoortgangView(null); return; } setActiveTab("dashboard"); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "20px", color: "#FF6B35", padding: "0 4px" }}>←</button>}
+      <div style={{ display: "flex", alignItems: "center", padding: "10px 16px", background: "#fff", borderBottom: "1px solid #F0E4D4", boxShadow: "0 2px 12px rgba(0,0,0,0.04)" }}>
+        {activeTab !== "dashboard" && <button onClick={() => { if (activeTab === "voortgang" && voortgangView) { setVoortgangView(null); return; } setActiveTab("dashboard"); }} style={{ background: "none", border: "none", cursor: "pointer", fontSize: "20px", color: "#FF6B35", padding: "0 4px", marginRight: "6px" }}>←</button>}
+        <button onClick={() => setShowMenu(true)} style={{ display: "flex", alignItems: "center", gap: "10px", background: "none", border: "none", cursor: "pointer", padding: 0, textAlign: "left" }}>
+          <IconMenu />
           <LogoSVG size={36} />
           <div>
             <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "18px", color: "#FF5A10" }}>Papparatzi</div>
             <div style={{ fontSize: "9px", color: "#FF8C5A", fontWeight: "800", letterSpacing: "0.12em", textTransform: "uppercase" }}>{t.tagline}</div>
           </div>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {user
-            ? <button onClick={handleLogout} style={{ background: "#FFF0E8", color: "#FF6B35", border: "1.5px solid rgba(255,107,53,0.2)", padding: "5px 12px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px" }}><IconLogin />{t.logout_btn}</button>
-            : <button onClick={() => setShowLogin(true)} style={{ background: "#FFF0E8", color: "#FF6B35", border: "1.5px solid rgba(255,107,53,0.2)", padding: "5px 12px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center", gap: "5px" }}><IconLogin />{t.login_btn}</button>
-          }
-          {!isPremium
-            ? <button style={{ background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", padding: "6px 12px", borderRadius: "50px", fontFamily: "'Nunito', sans-serif", fontWeight: "800", fontSize: "11px", cursor: "pointer", display: "flex", alignItems: "center", gap: "4px" }} onClick={() => setShowUpgrade(true)}><IconStar />{t.premium_btn}</button>
-            : <div style={{ background: "linear-gradient(135deg, #FFD700, #FFA500)", color: "#fff", padding: "6px 14px", borderRadius: "50px", fontSize: "11px", fontWeight: "900", boxShadow: "0 0 12px rgba(255,165,0,0.6)", animation: "premiumPulse 2s ease-in-out infinite", display: "flex", alignItems: "center", gap: "4px" }}><IconStar />{t.premium_badge}</div>
-          }
-        </div>
+        </button>
       </div>
+
+      <SideMenu open={showMenu} onClose={() => setShowMenu(false)} t={t} activeTab={activeTab} setActiveTab={setActiveTab} setVoortgangView={setVoortgangView}
+        childName={childName} setChildName={setChildName} childAge={childAge} setChildAge={setChildAge}
+        user={user} handleLogout={handleLogout} setShowLogin={setShowLogin} isPremium={isPremium} setShowUpgrade={setShowUpgrade} />
 
       {/* Tabs */}
       <div style={{ display: "flex", background: "#fff", borderBottom: "1px solid #F0E4D4", padding: "0 16px", overflowX: "auto" }}>
@@ -1199,7 +1281,7 @@ export default function App() {
       {/* DASHBOARD TAB */}
       {activeTab === "dashboard" && (
         <Dashboard childName={childName} childAge={childAge} lang={lang} t={t} isPremium={isPremium}
-          zindelijkheidDays={zindelijkheidDays} tandjes={tandjes} groeiData={groeiData} mijlpalenData={mijlpalenData} vaccinatiesChecked={vaccinatiesChecked}
+          zindelijkheidDays={zindelijkheidDays} tandjes={tandjes} lengteData={lengteData} gewichtData={gewichtData} mijlpalenData={mijlpalenData} vaccinatiesChecked={vaccinatiesChecked}
           onNavigateVoortgang={onNavigateVoortgang} onChat={handleChatFromTips} setShowUpgrade={setShowUpgrade} />
       )}
 
@@ -1270,11 +1352,12 @@ export default function App() {
       {activeTab === "voortgang" && (
         voortgangView === "zindelijkheid" ? <ZindelijkheidTracker t={t} days={zindelijkheidDays} setDays={setZindelijkheidDays} /> :
         voortgangView === "tandjes" ? <TandjesKaart t={t} tandjes={tandjes} setTandjes={setTandjes} /> :
-        voortgangView === "groei" ? <GroeiTracker t={t} lang={lang} data={groeiData} setData={setGroeiData} /> :
+        voortgangView === "lengte" ? <MetingTracker t={t} lang={lang} title={t.lengte_title} sub={t.lengte_sub} unit="cm" gradient="linear-gradient(135deg, #FF6B35, #FF8C5A)" lineColor="#FF6B35" data={lengteData} setData={setLengteData} /> :
+        voortgangView === "gewicht" ? <MetingTracker t={t} lang={lang} title={t.gewicht_title} sub={t.gewicht_sub} unit="kg" gradient="linear-gradient(135deg, #4A90D9, #6BA8E8)" lineColor="#4A90D9" data={gewichtData} setData={setGewichtData} /> :
         voortgangView === "mijlpalen" ? <Mijlpalen t={t} lang={lang} data={mijlpalenData} setData={setMijlpalenData} /> :
         voortgangView === "vaccinaties" ? <Vaccinatieschema t={t} lang={lang} data={vaccinatiesChecked} setData={setVaccinatiesChecked} /> :
         <VoortgangPage t={t} isPremium={isPremium} setShowUpgrade={setShowUpgrade} onOpenTracker={setVoortgangView}
-          zindelijkheidDays={zindelijkheidDays} tandjes={tandjes} groeiData={groeiData} mijlpalenData={mijlpalenData} vaccinatiesChecked={vaccinatiesChecked} />
+          zindelijkheidDays={zindelijkheidDays} tandjes={tandjes} lengteData={lengteData} gewichtData={gewichtData} mijlpalenData={mijlpalenData} vaccinatiesChecked={vaccinatiesChecked} />
       )}
 
       <div style={{ textAlign: "center", fontSize: "10px", color: "#CCC", padding: "5px 20px 8px", background: "#fff" }}>{t.disclaimer}</div>
