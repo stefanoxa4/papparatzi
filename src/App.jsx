@@ -99,6 +99,14 @@ const T = {
     growth_curve_title: "Officiële groeicurve",
     growth_curve_sub: "Vergelijk met de groeicurve via GroeiGids of Mijn CJG",
     menu_profile: "Profiel",
+    instagram_label: "Volg ons op Instagram",
+    tracker_chat_btn: "Stel een vraag hierover",
+    milestone_first_smile: "Eerste lach",
+    milestone_roll: "Zelfstandig omrollen",
+    milestone_sit: "Zelfstandig zitten",
+    milestone_crawl_tiger: "Tijgeren",
+    milestone_crawl: "Kruipen",
+    teeth_tip_title: "Tips voor melktandjes",
     dashboard_tab: "Vandaag",
     voortgang_tab: "Voortgang",
     dashboard_greeting: "Hoi",
@@ -202,6 +210,14 @@ const T = {
     growth_curve_title: "Official growth chart",
     growth_curve_sub: "Compare with the growth chart via GroeiGids or your local youth health service",
     menu_profile: "Profile",
+    instagram_label: "Follow us on Instagram",
+    tracker_chat_btn: "Ask a question about this",
+    milestone_first_smile: "First smile",
+    milestone_roll: "Rolling over independently",
+    milestone_sit: "Sitting up independently",
+    milestone_crawl_tiger: "Commando crawling",
+    milestone_crawl: "Crawling",
+    teeth_tip_title: "Tips for baby teeth",
     dashboard_tab: "Today",
     voortgang_tab: "Progress",
     dashboard_greeting: "Hi",
@@ -260,6 +276,13 @@ const IconVaccine = () => <svg width="22" height="22" viewBox="0 0 24 24" fill="
 const IconLock = () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>;
 const IconExternal = () => <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>;
 const IconMenu = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FF6B35" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>;
+const IconInstagram = ({ size = 22, color = "#E1306C" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="2" width="20" height="20" rx="5.5" ry="5.5" stroke={color} strokeWidth="2" fill="none"/>
+    <circle cx="12" cy="12" r="4.5" stroke={color} strokeWidth="2" fill="none"/>
+    <circle cx="17.5" cy="6.5" r="1.2" fill={color}/>
+  </svg>
+);
 
 // ── AGE TIPS WITH CONCRETE CONTENT ────────────────────────────────────────
 const AGE_TIPS = {
@@ -338,28 +361,28 @@ const POLLS = {
 // ── VACCINATIESCHEMA - gebaseerd op RVP 2026 (geboorte t/m 14 jaar) ────────
 const VACCINATIE_SCHEMA = {
   nl: [
-    { id: "v1", leeftijd: "Rond de geboorte", naam: "RS-virusprik (RSV)" },
-    { id: "v2", leeftijd: "6 - 9 weken", naam: "Rotavirus, 1e dosis" },
-    { id: "v3", leeftijd: "3 maanden", naam: "DKTP-Hib-HepB, Pneumokokken en Rotavirus (2e dosis)" },
-    { id: "v4", leeftijd: "5 maanden", naam: "DKTP-Hib-HepB en Pneumokokken, 2e dosis" },
-    { id: "v5", leeftijd: "11 maanden", naam: "DKTP-Hib-HepB en Pneumokokken, 3e dosis" },
-    { id: "v6", leeftijd: "14 maanden", naam: "BMR (1e dosis) en MenACWY" },
-    { id: "v7", leeftijd: "Rond 3 jaar", naam: "BMR, 2e dosis" },
-    { id: "v8", leeftijd: "Rond 5 - 6 jaar", naam: "DKT-booster" },
-    { id: "v9", leeftijd: "9 - 10 jaar", naam: "HPV, 1e en 2e dosis" },
-    { id: "v10", leeftijd: "14 jaar", naam: "MenACWY-booster" },
+    { id: "v1", leeftijd: "Rond de geboorte", naam: "RS-virusprik (RSV)", url: "https://www.ggd.nl/themas/rsv-vaccinatie" },
+    { id: "v2", leeftijd: "6 - 9 weken", naam: "Rotavirus, 1e dosis", url: "https://www.rivm.nl/rotavirus" },
+    { id: "v3", leeftijd: "3 maanden", naam: "DKTP-Hib-HepB, Pneumokokken en Rotavirus (2e dosis)", url: "https://www.rivm.nl/dktp-hib-hepb" },
+    { id: "v4", leeftijd: "5 maanden", naam: "DKTP-Hib-HepB en Pneumokokken, 2e dosis", url: "https://www.rivm.nl/pneumokokken" },
+    { id: "v5", leeftijd: "11 maanden", naam: "DKTP-Hib-HepB en Pneumokokken, 3e dosis", url: "https://www.rivm.nl/dktp-hib-hepb" },
+    { id: "v6", leeftijd: "14 maanden", naam: "BMR (1e dosis) en MenACWY", url: "https://www.rivm.nl/bmr-vaccin" },
+    { id: "v7", leeftijd: "Rond 3 jaar", naam: "BMR, 2e dosis", url: "https://www.rivm.nl/bmr-vaccin" },
+    { id: "v8", leeftijd: "Rond 5 - 6 jaar", naam: "DKT-booster", url: "https://www.rivm.nl/dktp" },
+    { id: "v9", leeftijd: "9 - 10 jaar", naam: "HPV, 1e en 2e dosis", url: "https://www.rivm.nl/hpv-vaccinatie" },
+    { id: "v10", leeftijd: "14 jaar", naam: "MenACWY-booster", url: "https://www.rivm.nl/meningokokkenvaccinatie" },
   ],
   en: [
-    { id: "v1", leeftijd: "Around birth", naam: "RSV vaccine" },
-    { id: "v2", leeftijd: "6 - 9 weeks", naam: "Rotavirus, 1st dose" },
-    { id: "v3", leeftijd: "3 months", naam: "DKTP-Hib-HepB, Pneumococcal and Rotavirus (2nd dose)" },
-    { id: "v4", leeftijd: "5 months", naam: "DKTP-Hib-HepB and Pneumococcal, 2nd dose" },
-    { id: "v5", leeftijd: "11 months", naam: "DKTP-Hib-HepB and Pneumococcal, 3rd dose" },
-    { id: "v6", leeftijd: "14 months", naam: "MMR (1st dose) and MenACWY" },
-    { id: "v7", leeftijd: "Around 3 years", naam: "MMR, 2nd dose" },
-    { id: "v8", leeftijd: "Around 5 - 6 years", naam: "DKT booster" },
-    { id: "v9", leeftijd: "9 - 10 years", naam: "HPV, 1st and 2nd dose" },
-    { id: "v10", leeftijd: "14 years", naam: "MenACWY booster" },
+    { id: "v1", leeftijd: "Around birth", naam: "RSV vaccine", url: "https://www.rivm.nl/en/rsv-vaccination" },
+    { id: "v2", leeftijd: "6 - 9 weeks", naam: "Rotavirus, 1st dose", url: "https://www.rivm.nl/en/rotavirus" },
+    { id: "v3", leeftijd: "3 months", naam: "DKTP-Hib-HepB, Pneumococcal and Rotavirus (2nd dose)", url: "https://www.rivm.nl/en/dktp" },
+    { id: "v4", leeftijd: "5 months", naam: "DKTP-Hib-HepB and Pneumococcal, 2nd dose", url: "https://www.rivm.nl/en/pneumococcal" },
+    { id: "v5", leeftijd: "11 months", naam: "DKTP-Hib-HepB and Pneumococcal, 3rd dose", url: "https://www.rivm.nl/en/dktp" },
+    { id: "v6", leeftijd: "14 months", naam: "MMR (1st dose) and MenACWY", url: "https://www.rivm.nl/en/mmr-vaccine" },
+    { id: "v7", leeftijd: "Around 3 years", naam: "MMR, 2nd dose", url: "https://www.rivm.nl/en/mmr-vaccine" },
+    { id: "v8", leeftijd: "Around 5 - 6 years", naam: "DKT booster", url: "https://www.rivm.nl/en/dktp" },
+    { id: "v9", leeftijd: "9 - 10 years", naam: "HPV, 1st and 2nd dose", url: "https://www.rivm.nl/en/hpv-vaccination" },
+    { id: "v10", leeftijd: "14 years", naam: "MenACWY booster", url: "https://www.rivm.nl/en/meningococcal-vaccination" },
   ]
 };
 
@@ -557,9 +580,9 @@ const UpgradeModal = ({ onClose, user, setShowLogin, t }) => {
             </div>
           ))}
         </div>
-        <div style={{ background: "linear-gradient(135deg, #FF6B35, #FF5A10)", borderRadius: "16px", padding: "16px", marginBottom: "20px", textAlign: "center" }}>
-          <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "32px", color: "#fff", fontWeight: "700" }}>€3,99</div>
-          <div style={{ color: "rgba(255,255,255,0.85)", fontSize: "13px" }}>{t.upgrade_per_month}</div>
+        <div style={{ background: "#FFF0E8", border: "2px solid #F0E4D4", borderRadius: "16px", padding: "16px", marginBottom: "20px", textAlign: "center" }}>
+          <div style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "32px", color: "#FF5A10", fontWeight: "700" }}>€3,99</div>
+          <div style={{ color: "#888", fontSize: "13px" }}>{t.upgrade_per_month}</div>
         </div>
         {!user && <div style={{ background: "#FFF0E8", borderRadius: "12px", padding: "10px", fontSize: "13px", color: "#FF6B35", fontWeight: "700", marginBottom: "16px" }}>{t.login_first}</div>}
         <button style={{ width: "100%", padding: "15px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Fredoka', sans-serif", fontWeight: "600", fontSize: "18px", cursor: "pointer", marginBottom: "10px", opacity: loading ? 0.6 : 1 }} onClick={handleCheckout} disabled={loading}>
@@ -725,40 +748,125 @@ const TipsPage = ({ childAge, lang, t, onChat }) => {
 };
 
 // ── TANDJES KAART ─────────────────────────────────────────────────────────
-const TandjesKaart = ({ t, tandjes, setTandjes }) => {
+const TandjesKaart = ({ t, lang, tandjes, setTandjes, onChat }) => {
   const toggle = (id) => setTandjes(prev => ({ ...prev, [id]: !prev[id] }));
   const totaal = Object.values(tandjes).filter(Boolean).length;
-  const bovenTandjes = ["b1","b2","b3","b4","b5","b6","b7","b8","b9","b10"].map((id, i) => ({ id, naam: i < 4 ? "Snijtand" : i < 6 ? "Hoektand" : "Kies" }));
-  const onderTandjes = ["o1","o2","o3","o4","o5","o6","o7","o8","o9","o10"].map((id, i) => ({ id, naam: i < 4 ? "Snijtand" : i < 6 ? "Hoektand" : "Kies" }));
-  const TandRij = ({ items, label }) => (
-    <div style={{ marginBottom: "16px" }}>
-      <div style={{ fontSize: "11px", color: "#aaa", marginBottom: "8px", textAlign: "center" }}>{label}</div>
-      <div style={{ display: "flex", gap: "6px", justifyContent: "center", flexWrap: "wrap" }}>
-        {items.map(tooth => (
-          <button key={tooth.id} onClick={() => toggle(tooth.id)} title={tooth.naam}
-            style={{ width: "32px", height: "38px", borderRadius: "6px 6px 10px 10px", border: "2px solid", borderColor: tandjes[tooth.id] ? "#FF6B35" : "#E5D5C5", background: tandjes[tooth.id] ? "#FF6B35" : "#fff", cursor: "pointer" }} />
-        ))}
-      </div>
-    </div>
-  );
+
+  // Gebit layout: boven en onder, van midden naar buiten
+  // Elk tand heeft: id, type (nl), breedte, hoogte, borderRadius (geeft tandvorm)
+  const bovenRij = [
+    { id: "b5", type: "Kies", w: 30, h: 28, r: "5px 5px 8px 8px" },
+    { id: "b4", type: "Kies", w: 30, h: 28, r: "5px 5px 8px 8px" },
+    { id: "b3", type: "Hoektand", w: 22, h: 34, r: "4px 4px 10px 10px" },
+    { id: "b2", type: "Zijsnijtand", w: 22, h: 32, r: "4px 4px 9px 9px" },
+    { id: "b1", type: "Snijtand", w: 26, h: 34, r: "4px 4px 10px 10px" },
+    { id: "b6", type: "Snijtand", w: 26, h: 34, r: "4px 4px 10px 10px" },
+    { id: "b7", type: "Zijsnijtand", w: 22, h: 32, r: "4px 4px 9px 9px" },
+    { id: "b8", type: "Hoektand", w: 22, h: 34, r: "4px 4px 10px 10px" },
+    { id: "b9", type: "Kies", w: 30, h: 28, r: "5px 5px 8px 8px" },
+    { id: "b10", type: "Kies", w: 30, h: 28, r: "5px 5px 8px 8px" },
+  ];
+  const onderRij = [
+    { id: "o5", type: "Kies", w: 30, h: 26, r: "8px 8px 5px 5px" },
+    { id: "o4", type: "Kies", w: 30, h: 26, r: "8px 8px 5px 5px" },
+    { id: "o3", type: "Hoektand", w: 22, h: 30, r: "10px 10px 4px 4px" },
+    { id: "o2", type: "Zijsnijtand", w: 20, h: 28, r: "9px 9px 4px 4px" },
+    { id: "o1", type: "Snijtand", w: 24, h: 30, r: "10px 10px 4px 4px" },
+    { id: "o6", type: "Snijtand", w: 24, h: 30, r: "10px 10px 4px 4px" },
+    { id: "o7", type: "Zijsnijtand", w: 20, h: 28, r: "9px 9px 4px 4px" },
+    { id: "o8", type: "Hoektand", w: 22, h: 30, r: "10px 10px 4px 4px" },
+    { id: "o9", type: "Kies", w: 30, h: 26, r: "8px 8px 5px 5px" },
+    { id: "o10", type: "Kies", w: 30, h: 26, r: "8px 8px 5px 5px" },
+  ];
+
+  const [hovered, setHovered] = useState(null);
+
+  const tips = [
+    { icon: "🪥", tip: lang === "en" ? "Start brushing as soon as the first tooth appears, twice a day." : "Begin met poetsen zodra het eerste tandje doorkomt, twee keer per dag." },
+    { icon: "💧", tip: lang === "en" ? "Use a tiny smear of fluoride toothpaste (max 0.5mm) until age 6." : "Gebruik een klein beetje fluoridetandpasta (max 0.5mm) tot 6 jaar." },
+    { icon: "🍬", tip: lang === "en" ? "Avoid sugary drinks before bed. Milk and fruit juice can cause cavities too." : "Vermijd suikerhoudende dranken voor het slapen. Ook melk en vruchtensap kunnen gaatjes veroorzaken." },
+    { icon: "🦷", tip: lang === "en" ? "The first dentist visit can be as early as age 1. Getting used to it early really helps!" : "Het eerste tandartsbezoek kan al op 1-jarige leeftijd. Vroeg wennen helpt!" },
+    { icon: "😬", tip: lang === "en" ? "Baby teeth are important placeholders for adult teeth. Cavities in milk teeth matter." : "Melktandjes zijn plaatshouders voor het blijvend gebit. Gaatjes zijn dus niet onbelangrijk." },
+  ];
+
+  const chatVraag = lang === "en"
+    ? "I have a question about my child's baby teeth and oral hygiene."
+    : "Ik heb een vraag over de melktandjes en mondhygiëne van mijn kind.";
+
   return (
     <div style={{ flex: 1, overflowY: "auto", padding: "20px", fontFamily: "'Nunito', sans-serif" }}>
       <div style={{ background: "#fff", borderRadius: "20px", padding: "20px", marginBottom: "16px", textAlign: "center" }}>
         <h2 style={{ fontFamily: "'Fredoka', sans-serif", color: "#FF5A10", fontSize: "22px", margin: "0 0 4px" }}>{t.teeth_title}</h2>
         <p style={{ color: "#888", fontSize: "13px", margin: 0 }}>{t.teeth_sub}</p>
       </div>
+
       <div style={{ background: "linear-gradient(135deg, #FF6B35, #FF8C5A)", borderRadius: "16px", padding: "16px", marginBottom: "16px", textAlign: "center" }}>
         <div style={{ fontSize: "28px", fontFamily: "'Fredoka', sans-serif", color: "#fff", fontWeight: "700" }}>{totaal} / 20</div>
         <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "13px" }}>{t.teeth_count}</div>
       </div>
-      <div style={{ background: "#fff", borderRadius: "16px", padding: "20px" }}>
-        <TandRij items={bovenTandjes} label={t.teeth_upper} />
-        <div style={{ height: "1px", background: "#F0E4D4", margin: "8px 0 16px" }} />
-        <TandRij items={onderTandjes} label={t.teeth_lower} />
+
+      {/* Gebitvorm */}
+      <div style={{ background: "#fff", borderRadius: "16px", padding: "20px", marginBottom: "16px" }}>
+        {/* Tooltip */}
+        <div style={{ textAlign: "center", height: "20px", marginBottom: "10px", fontSize: "12px", color: "#FF6B35", fontWeight: "700" }}>
+          {hovered ? hovered : ""}
+        </div>
+        {/* Bovenkaak */}
+        <div style={{ marginBottom: "4px" }}>
+          <div style={{ fontSize: "10px", color: "#aaa", textAlign: "center", marginBottom: "6px", fontWeight: "700", letterSpacing: "0.08em" }}>{t.teeth_upper}</div>
+          <div style={{ display: "flex", gap: "4px", justifyContent: "center", alignItems: "flex-end" }}>
+            {bovenRij.map(tooth => (
+              <button key={tooth.id} onClick={() => toggle(tooth.id)}
+                onMouseEnter={() => setHovered(tooth.type)} onMouseLeave={() => setHovered(null)}
+                title={tooth.type}
+                style={{ width: `${tooth.w}px`, height: `${tooth.h}px`, borderRadius: tooth.r, border: "2px solid", borderColor: tandjes[tooth.id] ? "#FF6B35" : "#D4C4B4", background: tandjes[tooth.id] ? "linear-gradient(180deg,#FF8C5A,#FF6B35)" : "linear-gradient(180deg,#fff,#F5EFE8)", cursor: "pointer", transition: "all 0.15s", boxShadow: tandjes[tooth.id] ? "0 2px 6px rgba(255,107,53,0.3)" : "0 1px 3px rgba(0,0,0,0.08)", padding: 0, flexShrink: 0 }}
+              />
+            ))}
+          </div>
+        </div>
+        {/* Tandvlees scheiding */}
+        <div style={{ height: "10px", background: "linear-gradient(90deg, #FFD4D4, #FFCACA, #FFD4D4)", borderRadius: "4px", margin: "6px 4px" }} />
+        {/* Onderkaak */}
+        <div>
+          <div style={{ display: "flex", gap: "4px", justifyContent: "center", alignItems: "flex-start" }}>
+            {onderRij.map(tooth => (
+              <button key={tooth.id} onClick={() => toggle(tooth.id)}
+                onMouseEnter={() => setHovered(tooth.type)} onMouseLeave={() => setHovered(null)}
+                title={tooth.type}
+                style={{ width: `${tooth.w}px`, height: `${tooth.h}px`, borderRadius: tooth.r, border: "2px solid", borderColor: tandjes[tooth.id] ? "#FF6B35" : "#D4C4B4", background: tandjes[tooth.id] ? "linear-gradient(180deg,#FF6B35,#FF8C5A)" : "linear-gradient(180deg,#F5EFE8,#fff)", cursor: "pointer", transition: "all 0.15s", boxShadow: tandjes[tooth.id] ? "0 2px 6px rgba(255,107,53,0.3)" : "0 1px 3px rgba(0,0,0,0.08)", padding: 0, flexShrink: 0 }}
+              />
+            ))}
+          </div>
+          <div style={{ fontSize: "10px", color: "#aaa", textAlign: "center", marginTop: "6px", fontWeight: "700", letterSpacing: "0.08em" }}>{t.teeth_lower}</div>
+        </div>
+
+        {/* Legenda tandtypes */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "8px", marginTop: "16px", justifyContent: "center" }}>
+          {[["Snijtand", "#FF6B35"], ["Zijsnijtand", "#FF8C5A"], ["Hoektand", "#FFB347"], ["Kies", "#FFCF77"]].map(([label, color]) => (
+            <div key={label} style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "11px", color: "#666", fontWeight: "700" }}>
+              <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: color }} />
+              {label}
+            </div>
+          ))}
+        </div>
+        <div style={{ textAlign: "center", marginTop: "10px", fontSize: "11px", color: "#aaa" }}>Tik op een tandje om het aan te vinken als doorgekomen</div>
       </div>
-      <div style={{ background: "#FFF0E8", borderRadius: "14px", padding: "12px", marginTop: "16px", fontSize: "12px", color: "#FF6B35", textAlign: "center", fontWeight: "700" }}>
-        Oranje = doorgekomen
+
+      {/* Tips voor melktandjes */}
+      <div style={{ background: "#fff", borderRadius: "16px", padding: "16px", marginBottom: "16px" }}>
+        <div style={{ fontSize: "13px", fontWeight: "800", color: "#1A1A2E", marginBottom: "12px" }}>{t.teeth_tip_title}</div>
+        {tips.map((tip, i) => (
+          <div key={i} style={{ display: "flex", gap: "10px", alignItems: "flex-start", padding: "8px 0", borderBottom: i < tips.length - 1 ? "1px solid #F0E4D4" : "none" }}>
+            <span style={{ fontSize: "18px", flexShrink: 0 }}>{tip.icon}</span>
+            <span style={{ fontSize: "13px", color: "#555", lineHeight: 1.5 }}>{tip.tip}</span>
+          </div>
+        ))}
       </div>
+
+      {/* Chat knop */}
+      <button onClick={() => onChat(chatVraag)} style={{ width: "100%", padding: "14px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+        <IconChat /> {t.tracker_chat_btn}
+      </button>
     </div>
   );
 };
@@ -857,15 +965,24 @@ const MetingTracker = ({ t, lang, title, sub, unit, gradient, lineColor, data, s
 };
 
 // ── MIJLPALEN ──────────────────────────────────────────────────────────────
-const Mijlpalen = ({ t, lang, data, setData }) => {
+const Mijlpalen = ({ t, lang, data, setData, onChat }) => {
   const formatDate = (d) => d ? new Date(d).toLocaleDateString(lang === "nl" ? "nl-NL" : "en-US", { day: "numeric", month: "long", year: "numeric" }) : "";
   const update = (key, field, value) => setData(prev => ({ ...prev, [key]: { ...prev[key], [field]: value } }));
 
+  const chatVraag = lang === "nl"
+    ? "Ik heb een vraag over de ontwikkeling en mijlpalen van mijn kind."
+    : "I have a question about my child's development and milestones.";
+
   const items = [
-    { key: "woord", icon: <IconSpeech />, label: t.milestone_first_word, hasText: true },
-    { key: "stapjes", icon: <IconWalk />, label: t.milestone_first_steps, hasText: false },
-    { key: "tandje", icon: <IconTooth />, label: t.milestone_first_tooth, hasText: false },
-    { key: "hapje", icon: <IconFood />, label: t.milestone_first_bite, hasText: false },
+    { key: "lach",      icon: "😊", label: t.milestone_first_smile,  hasText: false },
+    { key: "woord",     icon: <IconSpeech />, label: t.milestone_first_word,   hasText: true },
+    { key: "omrollen",  icon: "🔄", label: t.milestone_roll,          hasText: false },
+    { key: "zitten",    icon: "🪑", label: t.milestone_sit,           hasText: false },
+    { key: "tijgeren",  icon: "🐯", label: t.milestone_crawl_tiger,   hasText: false },
+    { key: "kruipen",   icon: "👶", label: t.milestone_crawl,         hasText: false },
+    { key: "stapjes",   icon: <IconWalk />, label: t.milestone_first_steps,   hasText: false },
+    { key: "tandje",    icon: <IconTooth />, label: t.milestone_first_tooth,   hasText: false },
+    { key: "hapje",     icon: <IconFood />, label: t.milestone_first_bite,    hasText: false },
   ];
 
   const inputStyle = { width: "100%", padding: "10px 14px", borderRadius: "10px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333", boxSizing: "border-box" };
@@ -877,17 +994,21 @@ const Mijlpalen = ({ t, lang, data, setData }) => {
         <p style={{ color: "#888", fontSize: "13px", margin: 0 }}>{t.milestones_sub}</p>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "16px" }}>
         {items.map(item => {
           const entry = data[item.key] || {};
           const isSet = !!entry.datum;
           return (
             <div key={item.key} style={{ background: "#fff", borderRadius: "16px", padding: "16px", border: isSet ? "1.5px solid #FF6B35" : "1.5px solid #F0E4D4" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
-                <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: isSet ? "#FF6B35" : "#FFF0E8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <div style={{ filter: isSet ? "brightness(0) invert(1)" : "none" }}>{item.icon}</div>
+                <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: isSet ? "#FF6B35" : "#FFF0E8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: typeof item.icon === "string" ? "20px" : "inherit" }}>
+                  {typeof item.icon === "string"
+                    ? <span style={{ filter: isSet ? "grayscale(0)" : "none" }}>{item.icon}</span>
+                    : <div style={{ filter: isSet ? "brightness(0) invert(1)" : "none" }}>{item.icon}</div>
+                  }
                 </div>
                 <span style={{ fontWeight: "800", fontSize: "14px", color: "#1A1A2E" }}>{item.label}</span>
+                {isSet && <span style={{ marginLeft: "auto", fontSize: "16px" }}>✓</span>}
               </div>
               {item.hasText && (
                 <input type="text" placeholder={t.milestone_word_placeholder} value={entry.waarde || ""} onChange={e => update(item.key, "waarde", e.target.value)} style={{ ...inputStyle, marginBottom: "8px" }} />
@@ -898,15 +1019,22 @@ const Mijlpalen = ({ t, lang, data, setData }) => {
           );
         })}
       </div>
+
+      <button onClick={() => onChat(chatVraag)} style={{ width: "100%", padding: "14px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+        <IconChat /> {t.tracker_chat_btn}
+      </button>
     </div>
   );
 };
 
 // ── VACCINATIESCHEMA - afvinklijst gebaseerd op RVP ───────────────────────
-const Vaccinatieschema = ({ t, lang, data, setData }) => {
+const Vaccinatieschema = ({ t, lang, data, setData, onChat }) => {
   const schema = VACCINATIE_SCHEMA[lang] || VACCINATIE_SCHEMA.nl;
   const toggle = (id) => setData(prev => ({ ...prev, [id]: !prev[id] }));
   const checkedCount = Object.values(data).filter(Boolean).length;
+  const chatVraag = lang === "nl"
+    ? "Ik heb een vraag over de vaccinaties van mijn kind."
+    : "I have a question about my child's vaccinations.";
 
   return (
     <div style={{ flex: 1, overflowY: "auto", padding: "20px", fontFamily: "'Nunito', sans-serif" }}>
@@ -920,23 +1048,35 @@ const Vaccinatieschema = ({ t, lang, data, setData }) => {
         <div style={{ color: "rgba(255,255,255,0.9)", fontSize: "13px" }}>{t.vaccinations_progress}</div>
       </div>
 
-      <div style={{ background: "#fff", borderRadius: "16px", padding: "8px" }}>
+      <div style={{ background: "#fff", borderRadius: "16px", padding: "8px", marginBottom: "16px" }}>
         {schema.map((item, i) => (
-          <button key={item.id} onClick={() => toggle(item.id)} style={{ width: "100%", display: "flex", alignItems: "center", gap: "12px", padding: "12px", background: "none", border: "none", borderBottom: i < schema.length - 1 ? "1px solid #F0E4D4" : "none", cursor: "pointer", textAlign: "left", fontFamily: "'Nunito', sans-serif" }}>
-            <div style={{ width: "24px", height: "24px", borderRadius: "8px", border: "2px solid", borderColor: data[item.id] ? "#FF6B35" : "#E5D5C5", background: data[item.id] ? "#FF6B35" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#fff", fontSize: "14px", fontWeight: "800" }}>
-              {data[item.id] ? "✓" : ""}
+          <div key={item.id} style={{ borderBottom: i < schema.length - 1 ? "1px solid #F0E4D4" : "none" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px" }}>
+              <button onClick={() => toggle(item.id)} style={{ width: "24px", height: "24px", borderRadius: "8px", border: "2px solid", borderColor: data[item.id] ? "#FF6B35" : "#E5D5C5", background: data[item.id] ? "#FF6B35" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "#fff", fontSize: "14px", fontWeight: "800", cursor: "pointer" }}>
+                {data[item.id] ? "✓" : ""}
+              </button>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: "11px", color: "#FF8C5A", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.leeftijd}</div>
+                <div style={{ fontSize: "13px", color: "#1A1A2E", fontWeight: "700" }}>{item.naam}</div>
+              </div>
+              {item.url && (
+                <a href={item.url} target="_blank" rel="noopener noreferrer" title="Meer informatie (RIVM)"
+                  style={{ flexShrink: 0, color: "#FF6B35", display: "flex", alignItems: "center" }}>
+                  <IconExternal />
+                </a>
+              )}
             </div>
-            <div>
-              <div style={{ fontSize: "11px", color: "#FF8C5A", fontWeight: "800", textTransform: "uppercase", letterSpacing: "0.05em" }}>{item.leeftijd}</div>
-              <div style={{ fontSize: "13px", color: "#1A1A2E", fontWeight: "700" }}>{item.naam}</div>
-            </div>
-          </button>
+          </div>
         ))}
       </div>
 
-      <div style={{ background: "#FFF0E8", borderRadius: "14px", padding: "12px", marginTop: "16px", fontSize: "12px", color: "#FF6B35", textAlign: "center", fontWeight: "700" }}>
+      <div style={{ background: "#FFF0E8", borderRadius: "14px", padding: "12px", marginBottom: "16px", fontSize: "12px", color: "#FF6B35", textAlign: "center", fontWeight: "700" }}>
         {t.vaccinations_disclaimer}
       </div>
+
+      <button onClick={() => onChat(chatVraag)} style={{ width: "100%", padding: "14px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "14px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+        <IconChat /> {t.tracker_chat_btn}
+      </button>
     </div>
   );
 };
@@ -1040,7 +1180,7 @@ const Dashboard = ({ childName, childAge, lang, t, isPremium, zindelijkheidDays,
             <MiniCard icon={<IconTooth />} label={t.teeth_tab} value={`${tandjesCount} / 20`} onClick={() => onNavigateVoortgang("tandjes")} />
             <MiniCard icon={<IconGrowth />} label={t.lengte_title} value={latestLengte ? `${latestLengte.waarde} cm` : t.dashboard_no_data} onClick={() => onNavigateVoortgang("lengte")} />
             <MiniCard icon={<IconGrowth />} label={t.gewicht_title} value={latestGewicht ? `${latestGewicht.waarde} kg` : t.dashboard_no_data} onClick={() => onNavigateVoortgang("gewicht")} />
-            <MiniCard icon={<IconMilestone />} label={t.milestones_title} value={`${mijlpalenCount} / 4`} onClick={() => onNavigateVoortgang("mijlpalen")} />
+            <MiniCard icon={<IconMilestone />} label={t.milestones_title} value={`${mijlpalenCount} / 9`} onClick={() => onNavigateVoortgang("mijlpalen")} />
             <MiniCard icon={<IconVaccine />} label={t.vaccinations_title} value={`${vaccinatiesCount} / ${VACCINATIE_SCHEMA.nl.length}`} sub={t.vaccinations_progress} onClick={() => onNavigateVoortgang("vaccinaties")} />
           </div>
         </>
@@ -1053,6 +1193,18 @@ const Dashboard = ({ childName, childAge, lang, t, isPremium, zindelijkheidDays,
           </div>
         </button>
       )}
+
+      <a href="https://www.instagram.com/papparatzi.app/" target="_blank" rel="noopener noreferrer"
+        style={{ marginTop: "12px", display: "flex", alignItems: "center", gap: "12px", background: "#fff", borderRadius: "16px", padding: "14px 16px", border: "1.5px solid #F0E4D4", textDecoration: "none", boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+        <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <IconInstagram size={22} color="#fff" />
+        </div>
+        <div style={{ flex: 1 }}>
+          <div style={{ fontWeight: "800", fontSize: "14px", color: "#1A1A2E" }}>{t.instagram_label}</div>
+          <div style={{ fontSize: "12px", color: "#aaa" }}>@papparatzi.app</div>
+        </div>
+        <IconExternal />
+      </a>
     </div>
   );
 };
@@ -1116,6 +1268,16 @@ const SideMenu = ({ open, onClose, t, activeTab, setActiveTab, setVoortgangView,
         </div>
 
         <div style={{ flex: 1 }} />
+
+        <div style={{ padding: "12px 16px", borderTop: "1px solid #F0E4D4" }}>
+          <a href="https://www.instagram.com/papparatzi.app/" target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", gap: "10px", textDecoration: "none", padding: "10px 14px", borderRadius: "12px", background: "#FFF0E8" }}>
+            <div style={{ width: "28px", height: "28px", borderRadius: "8px", background: "linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <IconInstagram size={16} color="#fff" />
+            </div>
+            <span style={{ fontSize: "13px", fontWeight: "700", color: "#1A1A2E" }}>{t.instagram_label}</span>
+          </a>
+        </div>
         <div style={{ padding: "16px", textAlign: "center", fontSize: "10px", color: "#CCC" }}>{t.disclaimer}</div>
       </div>
     </>
@@ -1351,11 +1513,11 @@ export default function App() {
       {/* VOORTGANG TAB */}
       {activeTab === "voortgang" && (
         voortgangView === "zindelijkheid" ? <ZindelijkheidTracker t={t} days={zindelijkheidDays} setDays={setZindelijkheidDays} /> :
-        voortgangView === "tandjes" ? <TandjesKaart t={t} tandjes={tandjes} setTandjes={setTandjes} /> :
+        voortgangView === "tandjes" ? <TandjesKaart t={t} lang={lang} tandjes={tandjes} setTandjes={setTandjes} onChat={handleChatFromTips} /> :
         voortgangView === "lengte" ? <MetingTracker t={t} lang={lang} title={t.lengte_title} sub={t.lengte_sub} unit="cm" gradient="linear-gradient(135deg, #FF6B35, #FF8C5A)" lineColor="#FF6B35" data={lengteData} setData={setLengteData} /> :
         voortgangView === "gewicht" ? <MetingTracker t={t} lang={lang} title={t.gewicht_title} sub={t.gewicht_sub} unit="kg" gradient="linear-gradient(135deg, #4A90D9, #6BA8E8)" lineColor="#4A90D9" data={gewichtData} setData={setGewichtData} /> :
-        voortgangView === "mijlpalen" ? <Mijlpalen t={t} lang={lang} data={mijlpalenData} setData={setMijlpalenData} /> :
-        voortgangView === "vaccinaties" ? <Vaccinatieschema t={t} lang={lang} data={vaccinatiesChecked} setData={setVaccinatiesChecked} /> :
+        voortgangView === "mijlpalen" ? <Mijlpalen t={t} lang={lang} data={mijlpalenData} setData={setMijlpalenData} onChat={handleChatFromTips} /> :
+        voortgangView === "vaccinaties" ? <Vaccinatieschema t={t} lang={lang} data={vaccinatiesChecked} setData={setVaccinatiesChecked} onChat={handleChatFromTips} /> :
         <VoortgangPage t={t} isPremium={isPremium} setShowUpgrade={setShowUpgrade} onOpenTracker={setVoortgangView}
           zindelijkheidDays={zindelijkheidDays} tandjes={tandjes} lengteData={lengteData} gewichtData={gewichtData} mijlpalenData={mijlpalenData} vaccinatiesChecked={vaccinatiesChecked} />
       )}
