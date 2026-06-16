@@ -12,7 +12,7 @@ fontLink.href = "https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;6
 document.head.appendChild(fontLink);
 
 const styleEl = document.createElement("style");
-styleEl.textContent = `@keyframes premiumPulse { 0%, 100% { box-shadow: 0 0 12px rgba(255,165,0,0.6); transform: scale(1); } 50% { box-shadow: 0 0 22px rgba(255,165,0,0.9); transform: scale(1.05); } }`;
+styleEl.textContent = `@keyframes premiumPulse { 0%, 100% { box-shadow: 0 0 12px rgba(255,165,0,0.6); transform: scale(1); } 50% { box-shadow: 0 0 22px rgba(255,165,0,0.9); transform: scale(1.05); } } @keyframes typingBounce { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-5px); opacity: 1; } }`;
 document.head.appendChild(styleEl);
 
 const FREE_LIMIT = 5;
@@ -92,6 +92,15 @@ const T = {
     poll_label: "POLL VAN DE WEEK",
     poll_thanks: "Bedankt voor je stem!",
     days_short: ["Zo", "Ma", "Di", "Wo", "Do", "Vr", "Za"],
+    feedback_btn: "Feedback",
+    feedback_title: "Deel je feedback",
+    feedback_placeholder: "Wat vind je van Papparatzi? Wat kan beter?",
+    feedback_send: "Versturen",
+    feedback_thanks: "Bedankt voor je feedback!",
+    forgot_password: "Wachtwoord vergeten?",
+    forgot_password_sub: "Vul je e-mailadres in, we sturen een herstellink.",
+    forgot_password_sent: "Check je inbox, we hebben een herstellink gestuurd!",
+    coach_typing: "is aan het typen",
     lengte_title: "Lengte",
     lengte_sub: "Houd de lengte bij en bekijk het verloop",
     gewicht_title: "Gewicht",
@@ -203,6 +212,15 @@ const T = {
     poll_label: "POLL OF THE WEEK",
     poll_thanks: "Thanks for voting!",
     days_short: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    feedback_btn: "Feedback",
+    feedback_title: "Share your feedback",
+    feedback_placeholder: "What do you think of Papparatzi? What could be better?",
+    feedback_send: "Send",
+    feedback_thanks: "Thanks for your feedback!",
+    forgot_password: "Forgot your password?",
+    forgot_password_sub: "Enter your email and we'll send a reset link.",
+    forgot_password_sent: "Check your inbox, we sent a reset link!",
+    coach_typing: "is typing",
     lengte_title: "Height",
     lengte_sub: "Track height and view the trend",
     gewicht_title: "Weight",
@@ -503,8 +521,62 @@ const BabyIllustration = ({ size = 80 }) => (
 );
 
 // ── LOGIN ──────────────────────────────────────────────────────────────────
+// ── COACH NAMEN ────────────────────────────────────────────────────────────
+const COACH_NAMEN = ["Luca", "Thiago", "Beau", "Lisa", "Marieke", "Kubra", "Angelina", "Fabienne"];
+const getRandomCoach = () => COACH_NAMEN[Math.floor(Math.random() * COACH_NAMEN.length)];
+
+// ── FEEDBACK MODAL + BUTTON ────────────────────────────────────────────────
+const FeedbackButton = ({ t, compact = false }) => {
+  const [open, setOpen] = useState(false);
+  const [tekst, setTekst] = useState("");
+  const [verstuurd, setVerstuurd] = useState(false);
+
+  const verstuur = () => {
+    if (!tekst.trim()) return;
+    const bestaand = JSON.parse(localStorage.getItem("papparatzi_feedback") || "[]");
+    bestaand.push({ tekst, ts: new Date().toISOString() });
+    localStorage.setItem("papparatzi_feedback", JSON.stringify(bestaand));
+    setVerstuurd(true);
+    setTimeout(() => { setOpen(false); setVerstuurd(false); setTekst(""); }, 2000);
+  };
+
+  return (
+    <>
+      <button onClick={() => setOpen(true)}
+        style={{ background: "none", border: "none", cursor: "pointer", color: "#CCC", fontFamily: "'Nunito', sans-serif", fontSize: compact ? "11px" : "12px", fontWeight: "700", padding: compact ? "2px 6px" : "4px 10px", borderRadius: "20px", display: "inline-flex", alignItems: "center", gap: "4px", opacity: 0.75, transition: "opacity 0.2s" }}
+        onMouseEnter={e => e.currentTarget.style.opacity = "1"}
+        onMouseLeave={e => e.currentTarget.style.opacity = "0.75"}>
+        💬 {t.feedback_btn}
+      </button>
+
+      {open && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 1000, padding: "0 0 16px" }}>
+          <div style={{ background: "#fff", borderRadius: "20px 20px 16px 16px", padding: "24px 20px 20px", width: "100%", maxWidth: "440px", fontFamily: "'Nunito', sans-serif", boxShadow: "0 -4px 32px rgba(0,0,0,0.12)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+              <span style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "18px", color: "#FF5A10" }}>{t.feedback_title}</span>
+              <button onClick={() => setOpen(false)} style={{ background: "none", border: "none", fontSize: "22px", color: "#aaa", cursor: "pointer", lineHeight: 1 }}>×</button>
+            </div>
+            {verstuurd ? (
+              <div style={{ textAlign: "center", padding: "24px 0", color: "#FF6B35", fontWeight: "800", fontSize: "15px" }}>🎉 {t.feedback_thanks}</div>
+            ) : (
+              <>
+                <textarea value={tekst} onChange={e => setTekst(e.target.value)} placeholder={t.feedback_placeholder}
+                  style={{ width: "100%", minHeight: "90px", padding: "12px", borderRadius: "12px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333", boxSizing: "border-box", resize: "none", marginBottom: "12px" }} />
+                <button onClick={verstuur}
+                  style={{ width: "100%", padding: "13px", borderRadius: "12px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "14px", cursor: "pointer" }}>
+                  {t.feedback_send}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+};
+
 const LoginScreen = ({ onClose, onSuccess, t }) => {
-  const [mode, setMode] = useState("login");
+  const [mode, setMode] = useState("login"); // login | signup | forgot
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -514,7 +586,11 @@ const LoginScreen = ({ onClose, onSuccess, t }) => {
   const handleSubmit = async () => {
     setLoading(true); setError(""); setMessage("");
     try {
-      if (mode === "login") {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: "https://papparatzi.app" });
+        if (error) throw error;
+        setMessage(t.forgot_password_sent);
+      } else if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         onSuccess();
@@ -529,28 +605,55 @@ const LoginScreen = ({ onClose, onSuccess, t }) => {
     setLoading(false);
   };
 
+  const inputStyle = { width: "100%", padding: "12px 16px", borderRadius: "14px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333", boxSizing: "border-box", marginBottom: "12px" };
+
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", padding: "20px", zIndex: 999 }}>
       <div style={{ background: "#fff", borderRadius: "28px", padding: "36px 28px", maxWidth: "380px", width: "100%", textAlign: "center", fontFamily: "'Nunito', sans-serif" }}>
         <LogoSVG size={64} />
-        <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "24px", color: "#1A1A2E", margin: "12px 0 4px" }}>{mode === "login" ? t.login_title_welcome : t.login_title_register}</h2>
-        <p style={{ color: "#888", fontSize: "13px", margin: "0 0 24px", lineHeight: 1.5 }}>{mode === "login" ? t.login_sub_login : t.login_sub_register}</p>
+        <h2 style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "24px", color: "#1A1A2E", margin: "12px 0 4px" }}>
+          {mode === "login" ? t.login_title_welcome : mode === "signup" ? t.login_title_register : t.forgot_password}
+        </h2>
+        <p style={{ color: "#888", fontSize: "13px", margin: "0 0 24px", lineHeight: 1.5 }}>
+          {mode === "login" ? t.login_sub_login : mode === "signup" ? t.login_sub_register : t.forgot_password_sub}
+        </p>
         {error && <div style={{ background: "#FFF0F0", border: "1.5px solid #FFD0D0", borderRadius: "10px", padding: "10px", fontSize: "13px", color: "#CC0000", marginBottom: "16px" }}>{error}</div>}
         {message && <div style={{ background: "#F0FFF4", border: "1.5px solid #C0E8C0", borderRadius: "10px", padding: "10px", fontSize: "13px", color: "#007700", marginBottom: "16px" }}>{message}</div>}
-        <input style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333", boxSizing: "border-box", marginBottom: "12px" }} type="email" placeholder={t.login_email} value={email} onChange={e => setEmail(e.target.value)} />
-        <input style={{ width: "100%", padding: "12px 16px", borderRadius: "14px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333", boxSizing: "border-box", marginBottom: "16px" }} type="password" placeholder={t.login_password} value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()} />
+
+        <input style={inputStyle} type="email" placeholder={t.login_email} value={email} onChange={e => setEmail(e.target.value)} />
+        {mode !== "forgot" && (
+          <input style={inputStyle} type="password" placeholder={t.login_password} value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === "Enter" && handleSubmit()} />
+        )}
+
         <button style={{ width: "100%", padding: "14px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Fredoka', sans-serif", fontWeight: "600", fontSize: "18px", cursor: "pointer", marginBottom: "12px", opacity: loading ? 0.6 : 1 }} onClick={handleSubmit} disabled={loading}>
-          {loading ? t.login_loading : mode === "login" ? t.login_submit : t.register_submit}
+          {loading ? t.login_loading : mode === "login" ? t.login_submit : mode === "signup" ? t.register_submit : t.feedback_send}
         </button>
-        <button style={{ background: "none", border: "none", color: "#FF6B35", cursor: "pointer", fontSize: "13px", fontWeight: "700", marginBottom: "8px", fontFamily: "'Nunito', sans-serif" }} onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); setMessage(""); }}>
-          {mode === "login" ? t.login_switch_to_register : t.login_switch_to_login}
-        </button>
+
+        {mode === "login" && (
+          <button style={{ background: "none", border: "none", color: "#bbb", cursor: "pointer", fontSize: "12px", fontFamily: "'Nunito', sans-serif", display: "block", width: "100%", marginBottom: "8px" }}
+            onClick={() => { setMode("forgot"); setError(""); setMessage(""); }}>
+            {t.forgot_password}
+          </button>
+        )}
+        {mode !== "forgot" && (
+          <button style={{ background: "none", border: "none", color: "#FF6B35", cursor: "pointer", fontSize: "13px", fontWeight: "700", marginBottom: "8px", fontFamily: "'Nunito', sans-serif" }}
+            onClick={() => { setMode(mode === "login" ? "signup" : "login"); setError(""); setMessage(""); }}>
+            {mode === "login" ? t.login_switch_to_register : t.login_switch_to_login}
+          </button>
+        )}
+        {mode === "forgot" && (
+          <button style={{ background: "none", border: "none", color: "#FF6B35", cursor: "pointer", fontSize: "13px", fontWeight: "700", marginBottom: "8px", fontFamily: "'Nunito', sans-serif" }}
+            onClick={() => { setMode("login"); setError(""); setMessage(""); }}>
+            ← {t.login_title_welcome}
+          </button>
+        )}
         <br />
         <button style={{ background: "none", border: "none", color: "#aaa", cursor: "pointer", fontSize: "12px", fontFamily: "'Nunito', sans-serif" }} onClick={onClose}>{t.login_skip}</button>
       </div>
     </div>
   );
 };
+
 
 // ── UPGRADE MODAL ──────────────────────────────────────────────────────────
 const UpgradeModal = ({ onClose, user, setShowLogin, t }) => {
@@ -1278,7 +1381,10 @@ const SideMenu = ({ open, onClose, t, activeTab, setActiveTab, setVoortgangView,
             <span style={{ fontSize: "13px", fontWeight: "700", color: "#1A1A2E" }}>{t.instagram_label}</span>
           </a>
         </div>
-        <div style={{ padding: "16px", textAlign: "center", fontSize: "10px", color: "#CCC" }}>{t.disclaimer}</div>
+        <div style={{ padding: "16px", textAlign: "center", fontSize: "10px", color: "#CCC", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+          <FeedbackButton t={t} compact />
+          {t.disclaimer}
+        </div>
       </div>
     </>
   );
@@ -1302,6 +1408,8 @@ export default function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const [coachName] = useState(() => getRandomCoach());
   const [voortgangView, setVoortgangView] = useState(null);
   const [zindelijkheidDays, setZindelijkheidDays] = useState(() => {
     const today = new Date();
@@ -1339,31 +1447,54 @@ export default function App() {
     supabase.auth.onAuthStateChange((_event, session) => { setUser(session?.user || null); if (session?.user) loadConversation(session.user.id); });
   }, []);
 
-  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading]);
-
-  const remaining = Math.max(0, FREE_LIMIT - questionsUsed);
+  useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, loading, isTyping]);
 
   const sendMessage = async (text) => {
     const userText = text || input.trim();
     if (!userText) return;
     if (!isPremium && questionsUsed >= FREE_LIMIT) { setShowUpgrade(true); return; }
+
+    // Bij allereerste bericht: voeg coach-intro toe als welkomstbericht
+    const isFirstMessage = messages.length === 0;
+    const introMsg = isFirstMessage
+      ? { role: "assistant", content: lang === "nl"
+          ? `Hoi! Ik ben ${coachName}, jouw opvoedcoach van Papparatzi. Leuk dat je er bent! Wat kan ik voor je doen?`
+          : `Hi there! I'm ${coachName}, your parenting coach from Papparatzi. Great to have you here! What can I help you with?` }
+      : null;
+
+    const baseMessages = introMsg ? [introMsg] : messages;
     const userMsg = { role: "user", content: userText };
-    const newMsgs = [...messages, userMsg];
-    setMessages(newMsgs); setInput(""); setLoading(true);
+    const newMsgs = [...baseMessages, userMsg];
+
+    setMessages(newMsgs);
+    setInput("");
     if (!isPremium) setQuestionsUsed(q => q + 1);
+
+    // Typing indicator: schaal op vraaglengte, max 5 seconden
+    const typingMs = Math.min(1000 + userText.length * 20, 5000);
+    setIsTyping(true);
+    await new Promise(r => setTimeout(r, typingMs));
+    setIsTyping(false);
+    setLoading(true);
+
     try {
       const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ system: buildSystemPrompt(childName, childAge, lang), messages: newMsgs }) });
       if (!response.ok) throw new Error();
       const data = await response.json();
       const reply = data.content?.[0]?.text || "...";
+      // Kleine extra vertraging voor menselijker gevoel
+      await new Promise(r => setTimeout(r, 280));
       const updatedMsgs = [...newMsgs, { role: "assistant", content: reply }];
       setMessages(updatedMsgs);
       if (user) saveConversation(updatedMsgs, user.id);
-    } catch { setMessages(prev => [...prev, { role: "assistant", content: "Oeps, er ging iets mis. Probeer het nog eens!" }]); }
+    } catch {
+      setMessages(prev => [...prev, { role: "assistant", content: lang === "nl" ? "Oeps, er ging iets mis. Probeer het nog eens!" : "Oops, something went wrong. Please try again!" }]);
+    }
     setLoading(false);
   };
 
   const handleChatFromTips = (vraag) => { setActiveTab("chat"); setTimeout(() => sendMessage(vraag), 100); };
+  const remaining = Math.max(0, FREE_LIMIT - questionsUsed);
   const onNavigateVoortgang = (view) => { setActiveTab("voortgang"); setVoortgangView(view); };
   const handleKey = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
   const handleLogout = async () => { await supabase.auth.signOut(); setUser(null); };
@@ -1457,7 +1588,10 @@ export default function App() {
                 <p style={{ fontFamily: "'Fredoka', sans-serif", fontSize: "22px", color: "#1A1A2E", margin: "12px 0 6px" }}>
                   {t.help_title}{childName ? `, ${childName.split(" ")[0]}` : ""}?
                 </p>
-                <p style={{ color: "#aaa", fontSize: "13px", margin: "0 0 20px" }}>{t.help_sub}</p>
+                <p style={{ color: "#aaa", fontSize: "13px", margin: "0 0 4px" }}>{t.help_sub}</p>
+                <p style={{ color: "#FF8C5A", fontSize: "12px", fontWeight: "700", margin: "0 0 20px", fontFamily: "'Nunito', sans-serif" }}>
+                  {lang === "nl" ? `Je spreekt vandaag met ${coachName}` : `Today you're speaking with ${coachName}`}
+                </p>
                 {childAge && (
                   <div style={{ width: "100%", maxWidth: "480px", marginBottom: "16px" }}>
                     <p style={{ fontSize: "11px", fontWeight: "800", color: "#FF8C5A", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 10px" }}>{t.age_tips_label} {childAge} {t.age_tips_suffix}</p>
@@ -1483,11 +1617,23 @@ export default function App() {
                 </div>
               </div>
             ))}
-            {loading && (
+            {/* Typing indicator + loading bubble */}
+            {(isTyping || loading) && (
               <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                 <LogoSVG size={32} />
-                <div style={{ background: "#fff", padding: "14px 20px", borderRadius: "20px", borderTopLeftRadius: "4px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
-                  <span style={{ color: "#FF6B35", fontSize: "18px", letterSpacing: "4px" }}>. . .</span>
+                <div style={{ background: "#fff", padding: "12px 18px", borderRadius: "20px", borderTopLeftRadius: "4px", boxShadow: "0 2px 12px rgba(0,0,0,0.06)", display: "flex", alignItems: "center", gap: "10px" }}>
+                  {isTyping ? (
+                    <>
+                      <span style={{ fontSize: "12px", color: "#999", fontFamily: "'Nunito', sans-serif", fontWeight: "600" }}>{coachName} {t.coach_typing}</span>
+                      <span style={{ display: "flex", gap: "4px", alignItems: "center" }}>
+                        {[0, 0.2, 0.4].map((delay, i) => (
+                          <span key={i} style={{ width: "7px", height: "7px", borderRadius: "50%", background: "#FF6B35", display: "inline-block", animation: `typingBounce 1s ease-in-out ${delay}s infinite` }} />
+                        ))}
+                      </span>
+                    </>
+                  ) : (
+                    <span style={{ color: "#FF6B35", fontSize: "18px", letterSpacing: "4px" }}>. . .</span>
+                  )}
                 </div>
               </div>
             )}
@@ -1502,7 +1648,7 @@ export default function App() {
           ) : (
             <div style={{ display: "flex", alignItems: "flex-end", gap: "10px", padding: "12px 16px", background: "#fff", borderTop: "1px solid #F0E4D4" }}>
               <textarea style={{ flex: 1, padding: "12px 16px", borderRadius: "16px", border: "2px solid #F0E4D4", background: "#FFF8F0", fontFamily: "'Nunito', sans-serif", fontSize: "14px", color: "#333", lineHeight: 1.5, maxHeight: "120px", overflowY: "auto", resize: "none" }} value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey} placeholder={`${t.input_placeholder}${childName ? ` ${t.input_about} ${childName}` : ""}...`} rows={1} />
-              <button style={{ width: "44px", height: "44px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontSize: "18px", cursor: "pointer", opacity: input.trim() && !loading ? 1 : 0.4, flexShrink: 0 }} onClick={() => sendMessage()} disabled={!input.trim() || loading}>↑</button>
+              <button style={{ width: "44px", height: "44px", borderRadius: "14px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontSize: "18px", cursor: "pointer", opacity: input.trim() && !loading && !isTyping ? 1 : 0.4, flexShrink: 0 }} onClick={() => sendMessage()} disabled={!input.trim() || loading || isTyping}>↑</button>
             </div>
           )}
         </>
@@ -1522,7 +1668,10 @@ export default function App() {
           zindelijkheidDays={zindelijkheidDays} tandjes={tandjes} lengteData={lengteData} gewichtData={gewichtData} mijlpalenData={mijlpalenData} vaccinatiesChecked={vaccinatiesChecked} />
       )}
 
-      <div style={{ textAlign: "center", fontSize: "10px", color: "#CCC", padding: "5px 20px 8px", background: "#fff" }}>{t.disclaimer}</div>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "4px 16px 8px", background: "#fff", borderTop: "1px solid #F0E4D4" }}>
+        <span style={{ fontSize: "10px", color: "#CCC" }}>{t.disclaimer}</span>
+        <FeedbackButton t={t} compact />
+      </div>
     </div>
   );
 }
