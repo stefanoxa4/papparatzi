@@ -1242,11 +1242,49 @@ const VoortgangPage = ({ t, isPremium, setShowUpgrade, onOpenTracker, zindelijkh
 };
 
 // ── DASHBOARD - startscherm ────────────────────────────────────────────────
+const OUDER_QUOTES = {
+  nl: [
+    "Jij doet het goed. Echt.",
+    "Er bestaat geen perfecte ouder. Maar een liefdevolle ouder maakt het verschil.",
+    "Je hoeft niet alles te weten. Je bent er gewoon, en dat telt.",
+    "Soms is overleven ook een succes.",
+    "Jij bent precies de ouder die jouw kind nodig heeft.",
+    "Fouten maken hoort erbij. Morgen is een nieuwe kans.",
+    "Je geeft meer dan je denkt.",
+    "Het is oké om moe te zijn. Rust is ook goed ouderschap.",
+    "Jij bent niet alleen in dit avontuur.",
+    "Kleine momenten samen zijn de grote herinneringen van morgen.",
+    "Je doet het al, elke dag opnieuw. Dat is moedig.",
+    "Twijfelen aan jezelf betekent dat je het serieus neemt.",
+    "Goed genoeg is echt goed genoeg.",
+    "Jouw kind heeft jou niet nodig om perfect te zijn, alleen aanwezig.",
+  ],
+  en: [
+    "You're doing great. Really.",
+    "There's no perfect parent. But a loving one makes all the difference.",
+    "You don't need to know everything. You just show up, and that matters.",
+    "Sometimes surviving the day is a win.",
+    "You are exactly the parent your child needs.",
+    "Making mistakes is part of it. Tomorrow is a fresh start.",
+    "You give more than you realize.",
+    "It's okay to be tired. Rest is good parenting too.",
+    "You're not alone in this adventure.",
+    "Small moments together become the big memories of tomorrow.",
+    "You keep going, every single day. That takes courage.",
+    "Doubting yourself means you care deeply.",
+    "Good enough is truly good enough.",
+    "Your child doesn't need you to be perfect, just present.",
+  ],
+};
+
 const Dashboard = ({ childName, childAge, lang, t, isPremium, zindelijkheidDays, tandjes, lengteData, gewichtData, mijlpalenData, vaccinatiesChecked, onNavigateVoortgang, onChat, setShowUpgrade }) => {
   const tipsData = AGE_TIPS[lang] || AGE_TIPS.nl;
   const ageTips = tipsData[childAge] || tipsData["2–4"];
   const tipIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % ageTips.length;
   const dailyTip = ageTips[tipIndex];
+  const quotes = OUDER_QUOTES[lang] || OUDER_QUOTES.nl;
+  const quoteIndex = Math.floor(Date.now() / (1000 * 60 * 60 * 24)) % quotes.length;
+  const dailyQuote = quotes[quoteIndex];
 
   const droogDagen = Object.values(zindelijkheidDays).filter(v => v === "droog").length;
   const tandjesCount = Object.values(tandjes).filter(Boolean).length;
@@ -1273,6 +1311,12 @@ const Dashboard = ({ childName, childAge, lang, t, isPremium, zindelijkheidDays,
         <button onClick={() => onChat(dailyTip.vraag)} style={{ width: "100%", padding: "10px", borderRadius: "12px", background: "linear-gradient(135deg, #FF6B35, #FF5A10)", color: "#fff", border: "none", fontFamily: "'Nunito', sans-serif", fontWeight: "700", fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
           <IconChat /> {t.tips_chat_btn}
         </button>
+      </div>
+
+      {/* Ouder check-in quote */}
+      <div style={{ background: "linear-gradient(135deg, #1A1A2E, #2D2D4E)", borderRadius: "16px", padding: "18px 20px", marginBottom: "20px", display: "flex", alignItems: "center", gap: "14px" }}>
+        <span style={{ fontSize: "28px", flexShrink: 0 }}>🧡</span>
+        <p style={{ margin: 0, fontFamily: "'Nunito', sans-serif", fontSize: "15px", fontWeight: "700", color: "#fff", lineHeight: 1.5, fontStyle: "italic" }}>"{dailyQuote}"</p>
       </div>
 
       {isPremium ? (
